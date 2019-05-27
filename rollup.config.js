@@ -11,6 +11,7 @@ export default [
     {target: 'server', format: 'esm'},
     {target: 'server', format: 'cjs'},
     {target: 'browser', format: 'esm'},
+    {target: 'browser', format: 'cjs'},
 ].reduce((acc, {target, format}) => [
     ...acc,
     ...[
