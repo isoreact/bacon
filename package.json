@@ -5,9 +5,9 @@
   "author": "Steve Taylor",
   "license": "MIT",
   "repository": "isoreact/bacon1",
-  "main": "dist/isoreact-bacon1.server.cjs.min.js",
+  "main": "dist/server.js",
   "module": "dist/isoreact-bacon1.server.esm.min.js",
-  "browser": "dist/isoreact-bacon1.browser.cjs.min.js",
+  "browser": "dist/browser.js",
   "files": [
     "dist/"
   ],
@@ -27,8 +27,9 @@
     "test-audit": "npm audit || echo '\\nnpm audit failures temporarily ignored!\\n'",
     "test-lint": "npm-run-all --silent lint",
     "test-run": "cross-env NODE_ENV=development jest",
-    "build": "echo 'BUILD' && npm-run-all --silent --parallel build-*",
-    "build-rollup": "rollup -c"
+    "build": "echo 'BUILD' && npm-run-all --silent build-*",
+    "build-rollup": "rollup -c",
+    "build-dist": "cp browser.js dist && cp server.js dist"
   },
   "jest": {
     "collectCoverage": true,
@@ -55,7 +56,6 @@
   "dependencies": {
     "cuid": "^2.1.4",
     "hash.js": "^1.1.5",
-    "node-object-hash": "^1.4.1",
     "regenerator-runtime": "^0.13.1",
     "serialize-javascript": "^1.6.1"
   },

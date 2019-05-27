@@ -262,9 +262,9 @@ export default isomorphic({
 });
 ```
 
-## Hooks (experimental)
+## Hooks
 
-Experimental support for hooks is now available as an alternative to `<Connect />`.
+Support for hooks is now available as an alternative to `<Connect />`.
 
 ```jsx harmony
 // profile.js
