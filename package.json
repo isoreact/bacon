@@ -7,7 +7,7 @@
   "repository": "isoreact/bacon1",
   "main": "dist/isoreact-bacon1.server.cjs.min.js",
   "module": "dist/isoreact-bacon1.server.esm.min.js",
-  "browser": "dist/isoreact-bacon1.browser.esm.min.js",
+  "browser": "dist/isoreact-bacon1.browser.cjs.min.js",
   "files": [
     "dist/"
   ],
