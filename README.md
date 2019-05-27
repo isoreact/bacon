@@ -89,7 +89,7 @@ import profileContext from './profile-context';
 import fetchName from './streams/fetch-name';
 import fetchPhoto from './streams/fetch-photo';
 
-const IsoProfile = isomorphic({
+export default isomorphic({
     name: 'iso-profile',
     component: Profile,
     context: profileContext,
@@ -121,8 +121,6 @@ const IsoProfile = isomorphic({
         userId: PropTypes.string.isRequired,
     },
 });
-
-export default IsoProfile;
 ```
 
 The general contract of `getData(props, hydration)` is:
@@ -175,6 +173,94 @@ profiles synchronously, without having to load data from APIs.
 
 Bear in mind that isomorphic components are just React components, so you can use them directly in JSX and you don't
 even need to initially render them on the server. You could even use this library just for connecting to Bacon.js.
+
+## Contextless form
+
+In some situations, context is overkill, because your UI is fairly shallow and there is not much benefit, if any, to be
+gained by using a context. And in some cases, you may be using a component from a third-party library as the `copmonent`
+parameter. For this reason, `context` is optional. If you don't provide a `context`, the `state` of the stream returned
+by `getData` will be fed directly into the component's props (which otherwise doesn't receive props from `isomorphic`).
+
+```jsx harmony
+import React from 'react';
+import {useIsomorphicContext} from '@isoreact/bacon1';
+
+export default function Profile({name, photo}) {
+    return (
+        <section className="profile">
+            <section className="profile__name">
+                {name}
+            </section>
+            <section className="profile__photo">
+                <img className="profile__photo-img" src={photo} />
+            </section>
+        </section>
+    );
+}
+```
+
+```jsx harmony
+import PropTypes from 'prop-types';
+import Bacon from 'baconjs';
+import {isomorphic} from '@isoreact/bacon1';
+import Profile from './profile';
+import fetchName from './streams/fetch-name';
+import fetchPhoto from './streams/fetch-photo';
+
+export default isomorphic({
+    name: 'iso-profile',
+    component: Profile,
+    getData: (props, hydration) => {
+        const {userId} = props;
+        
+        const name$ = hydration
+            ? Bacon.constant({name: hydration.name})
+            : fetchName(userId);
+        
+        const photo$ = hydration
+            ? Bacon.constant({photo: hydration.photo})
+            : fetchPhoto(userId);
+        
+        return Bacon.combineTemplate({
+            // React component rendered with this state as its props
+            state: {
+                name: name$,
+                photo: photo$,
+            },
+            // Data rendered alongside the React element in the HTML page
+            hydration: {
+                name: name$,
+                photo: photo$,
+            },
+        });
+    },
+    propTypes: {
+        userId: PropTypes.string.isRequired,
+    },
+});
+```
+
+This saves you from the following additional boilerplate:
+
+```jsx harmony
+// NOTE: Don't do this!
+
+const context = React.createContext(null);
+const component = () => (
+    <Connect context={context}>
+        {(state) => (
+            <Profile {...state} />
+        )}
+    </Connect>
+);
+
+export default isomorphic({
+    name: 'iso-profile',
+    context,
+    component,
+    getData,
+});
+```
 
 ## Hooks (experimental)
 

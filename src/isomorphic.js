@@ -5,6 +5,7 @@ import bacon from 'baconjs';
 import {ServerContext, HydrationContext} from './context';
 import {SSR_TIMEOUT_ERROR} from './errors';
 import keyFor from './key-for';
+import Connect from './connect';
 
 /**
  * A function to create a Bacon.js <code>Observable</code>, optionally taking initial data when hydrating in the browser.
@@ -17,10 +18,15 @@ import keyFor from './key-for';
 /**
  * Create an isomorphic version of a React component.
  *
+ * When a React context is provided, the state emitted by the <code>getData</code> stream is made available via the context, allowing any
+ * child of this component to tap into the state via the context.
+ *
+ * When a React context isn't provided, the emitted state is fed directly into the component's props.
+ *
  * @param {Object}        isomorphicComponent               - isomorphic component details
  * @param {String}        isomorphicComponent.name          - name
  * @param {Function}      isomorphicComponent.component     - React component
- * @param {React.Context} isomorphicComponent.context       - context to provide and consume the data stream
+ * @param {React.Context} [isomorphicComponent.context]     - context to provide and consume the data stream
  * @param {getData}       isomorphicComponent.getData       - data stream creation function
  * @param {timeout}       [isomorphicComponent.timeout]     - the number of milliseconds to wait for the stream to emit its first value
  * @param {Object}        [isomorphicComponent.propTypes]   - propType validations
@@ -28,12 +34,21 @@ import keyFor from './key-for';
  */
 export default function isomorphic({
     name,
-    component:   Component,
-    context:     Context,
+    component: C,
+    context,
     getData,
     timeout,
     propTypes, // eslint-disable-line react/forbid-foreign-prop-types
 }) {
+    // When context isn't provided, inject the state directly into the component.
+    // TODO: Make this use case more efficient by bypassing context completely.
+    const Context = context || React.createContext(null);
+    const Component = context ? C : () => (
+        <Connect context={Context}>
+            {(state) => <C {...state} />}
+        </Connect>
+    );
+
     return class Isomorphic extends React.Component {
         static __isomorphic_name__ = name; // eslint-disable-line camelcase
         static displayName = name;
