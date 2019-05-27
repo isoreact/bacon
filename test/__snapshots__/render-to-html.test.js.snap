@@ -1,0 +1,311 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renderToHtml(isomorphicComponent) <Connect /> nested isomorphic component renders correctly 1`] = `
+<head></head>
+
+<body>
+  <div id="0123456789abcdef">
+    <section>
+      <ul>
+        <li>27</li>
+        <li>72</li>
+        <li>
+          <section>625</section>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-nested--connected", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "coefficient": 9
+      },
+      "hydration": {
+        "iso-nested--connected--55fa1adb27dccf36b9460eaeb0421f3141422e12b248273991e4727dc2645cb0": {
+          "v": 3,
+          "w": 8
+        },
+        "iso-simple--connected--cfa18ab5e5bfacba47b0cf02f2721b037b0e74dc6fcedc1f0fac019a83c36d6d": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) <Connect /> non-isomorphic component with mount point className renders as a regular element 1`] = `
+<head></head>
+
+<body>
+  <div>
+    <div data-reactroot="">Hello ;)</div>
+  </div>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) <Connect /> non-isomorphic component without mount point className renders as a regular element 1`] = `
+<head></head>
+
+<body>
+  <div class="mount-point">
+    <div data-reactroot="">Hello ;)</div>
+  </div>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) <Connect /> simple isomorphic component with mount point className renders correctly 1`] = `
+<head></head>
+
+<body>
+  <div id="0123456789abcdef" class="mount-point">
+    <section>625</section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-simple--connected", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "power": 4
+      },
+      "hydration": {
+        "iso-simple--connected--cfa18ab5e5bfacba47b0cf02f2721b037b0e74dc6fcedc1f0fac019a83c36d6d": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) <Connect /> simple isomorphic component without mount point className renders correctly 1`] = `
+<head></head>
+
+<body>
+  <div id="0123456789abcdef">
+    <section>625</section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-simple--connected", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "power": 4
+      },
+      "hydration": {
+        "iso-simple--connected--cfa18ab5e5bfacba47b0cf02f2721b037b0e74dc6fcedc1f0fac019a83c36d6d": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) <Connect /> styled nested isomorphic component renders correctly 1`] = `
+<head>
+  <style data-styled="MuSbl jMpfeO" data-styled-version="4.2.0">
+    /* sc-component-id: StyledSection-s4otge-0 */
+    .MuSbl {
+      padding: 7px;
+      background: #bbb;
+    }
+
+    /* sc-component-id: StyledList-s4otge-1 */
+    .jMpfeO {
+      margin: 7px;
+      background: #666;
+      color: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="0123456789abcdef">
+    <section class="StyledSection-s4otge-0 MuSbl">
+      <ul class="StyledList-s4otge-1 jMpfeO">
+        <li>27</li>
+        <li>72</li>
+        <li>
+          <section>625</section>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-nested-with-styles--connected", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "coefficient": 9
+      },
+      "hydration": {
+        "iso-nested-with-styles--connected--55fa1adb27dccf36b9460eaeb0421f3141422e12b248273991e4727dc2645cb0": {
+          "v": 3,
+          "w": 8
+        },
+        "iso-simple--connected--cfa18ab5e5bfacba47b0cf02f2721b037b0e74dc6fcedc1f0fac019a83c36d6d": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() nested isomorphic component renders correctly 1`] = `
+<head></head>
+
+<body>
+  <div id="0123456789abcdef">
+    <section>
+      <ul>
+        <li>27</li>
+        <li>72</li>
+        <li>
+          <section>625</section>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-nested--hooked", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "coefficient": 9
+      },
+      "hydration": {
+        "iso-nested--hooked--55fa1adb27dccf36b9460eaeb0421f3141422e12b248273991e4727dc2645cb0": {
+          "v": 3,
+          "w": 8
+        },
+        "iso-simple--hooked--cfa18ab5e5bfacba47b0cf02f2721b037b0e74dc6fcedc1f0fac019a83c36d6d": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() non-isomorphic component with mount point className renders as a regular element 1`] = `
+<head></head>
+
+<body>
+  <div>
+    <div data-reactroot="">Hello ;)</div>
+  </div>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() non-isomorphic component without mount point className renders as a regular element 1`] = `
+<head></head>
+
+<body>
+  <div class="mount-point">
+    <div data-reactroot="">Hello ;)</div>
+  </div>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() simple isomorphic component with mount point className renders correctly 1`] = `
+<head></head>
+
+<body>
+  <div id="0123456789abcdef" class="mount-point">
+    <section>625</section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-simple--hooked", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "power": 4
+      },
+      "hydration": {
+        "iso-simple--hooked--cfa18ab5e5bfacba47b0cf02f2721b037b0e74dc6fcedc1f0fac019a83c36d6d": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() simple isomorphic component without mount point className renders correctly 1`] = `
+<head></head>
+
+<body>
+  <div id="0123456789abcdef">
+    <section>625</section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-simple--hooked", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "power": 4
+      },
+      "hydration": {
+        "iso-simple--hooked--cfa18ab5e5bfacba47b0cf02f2721b037b0e74dc6fcedc1f0fac019a83c36d6d": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() styled nested isomorphic component renders correctly 1`] = `
+<head>
+  <style data-styled="dCujt gQtWdA" data-styled-version="4.2.0">
+    /* sc-component-id: StyledSection-it4kxk-0 */
+    .dCujt {
+      padding: 7px;
+      background: #bbb;
+    }
+
+    /* sc-component-id: StyledList-it4kxk-1 */
+    .gQtWdA {
+      margin: 7px;
+      background: #666;
+      color: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="0123456789abcdef">
+    <section class="StyledSection-it4kxk-0 dCujt">
+      <ul class="StyledList-it4kxk-1 gQtWdA">
+        <li>27</li>
+        <li>72</li>
+        <li>
+          <section>625</section>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-nested-with-styles--hooked", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "coefficient": 9
+      },
+      "hydration": {
+        "iso-nested-with-styles--hooked--55fa1adb27dccf36b9460eaeb0421f3141422e12b248273991e4727dc2645cb0": {
+          "v": 3,
+          "w": 8
+        },
+        "iso-simple--hooked--cfa18ab5e5bfacba47b0cf02f2721b037b0e74dc6fcedc1f0fac019a83c36d6d": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
