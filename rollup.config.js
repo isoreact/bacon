@@ -18,7 +18,7 @@ export default [
         'development',
         'production',
     ].map((environment) => ({
-        input: './src/index.js',
+        input: `./src/${target}.js`,
         output: {
             format,
             sourcemap: true,
