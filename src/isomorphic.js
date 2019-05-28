@@ -54,10 +54,6 @@ export default function isomorphic({
         static displayName = name;
         static propTypes = propTypes;
 
-        shouldComponentUpdate() {
-            return false;
-        }
-
         render() {
             const {children, ...props} = this.props; // eslint-disable-line no-unused-vars, react/prop-types
 
