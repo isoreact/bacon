@@ -1,15 +1,7 @@
-export const SSR_TIMEOUT_ERROR = Symbol(); // eslint-disable-line
+export const SSR_TIMEOUT_ERROR = Symbol();
 
 export function noImmediateStateOnServerError(name) {
-    return (
-        '\n👀\n'
-        + '📎:\n'
-        + `It looks like you\'re trying to render '${name || '(accidentally untitled isomorphic component)'}. Try the`
-        + ' following:\n\n'
-        + '1. Use the client-side build of IsoReact in the browser, not the server-side build.\n'
-        + '2. When getData(props, hydration) is executed in the browser, ensure the Bacon.js Property it returns'
-        + ' produces an event immediately.'
-    );
+    return `An unexpected error occurred while server-side rendering '${name || '(unknown)'}'`;
 }
 
 export function noImmediateStateOnHydrationError(name, elementId) {

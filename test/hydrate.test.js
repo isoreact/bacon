@@ -44,19 +44,15 @@ describe('hydrate(isomorphicComponent, options)', () => {
         hydrateNestedWithStyles,
     }) => {
         describe(name, () => {
-            let originalProcessBrowser;
             let originalConsoleInfo;
 
             beforeEach(() => {
-                originalProcessBrowser = process.browser;
-                process.browser = true;
                 originalConsoleInfo = console.info;
                 console.info = () => {}; // suppress debugging messages
             });
 
             afterEach(() => {
                 console.info = originalConsoleInfo;
-                process.browser = originalProcessBrowser;
             });
 
             describe('simple isomorphic component', () => {
@@ -583,31 +579,6 @@ describe('hydrate(isomorphicComponent, options)', () => {
 
                 test('rethrows the error', () => {
                     expect(error.message).toBe('Huzzah!');
-                });
-            });
-
-            describe('server', () => {
-                const html = `<div id="0123456789abcdef"><section>625</section></div><script type="text/javascript">Object.assign(["__ISO_DATA__","iso-simple${suffix}","0123456789abcdef"].reduce(function(a,b){return a[b]=a[b]||{};},window),{"props":{"power":4},"hydration":{"${keyFor(`iso-simple${suffix}`, {power: 4})}":{"baseValue":5}}});</script>`;
-                let originalProcessBrowser;
-
-                beforeEach(() => {
-                    originalProcessBrowser = process.browser;
-                    process.browser = false;
-
-                    document.body.innerHTML = html;
-                    eval(document.querySelector('script').innerHTML);
-                    hydrateSimple();
-                });
-
-                afterEach(() => {
-                    ReactDOM.unmountComponentAtNode(document.getElementById('0123456789abcdef'));
-                    document.body.innerHTML = '';
-
-                    process.browser = originalProcessBrowser;
-                });
-
-                test('does not attempt to hydrate', () => {
-                    expect(window.__ISO_DATA__[`iso-simple${suffix}`].hydrated).toBe(undefined);
                 });
             });
         });
