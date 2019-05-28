@@ -16,19 +16,39 @@ class Connector extends React.Component {
 
     static contextType = HydrationContext;
 
+    static getDerivedStateFromProps(props, state) {
+        // Switch data$ streams.
+        state.bus.push(props.data$);
+
+        // Track the current stream
+        return {data$: props.data$};
+    }
+
     constructor(props, context) {
         super(props, context);
 
+        this.state = {
+            bus: new bacon.Bus(),
+        };
+
         if (process.browser) {
+            // When the isomorphic component receives new props, it creates a new data$ stream.
+            // When this happens, switch streams using flatMapLatest.
+            const data$ = this.state.bus
+                .startWith(props.data$)
+                .skipDuplicates()
+                .flatMapLatest((stream$) => stream$)
+                .toProperty();
+
             // Use the immediately produced stream event to set initial state.
             this.observer = (value) => {
-                this.state = value;
+                this.state.value = value;
             };
 
             this.unsubscribe = (
                 props.isEqual
-                    ? props.data$.skipDuplicates(props.isEqual)
-                    : props.data$
+                    ? data$.skipDuplicates(props.isEqual)
+                    : data$
             )
                 .onValue((value) => {
                     this.observer(value);
@@ -37,7 +57,7 @@ class Connector extends React.Component {
             // If the stream didn't immediately produce an event, we have no initial state, so we can't hydrate.
             // Client-side, getData should produce an event immediately and, when hydrating, use the hydration object to
             // generate its value.
-            if (!this.state) {
+            if (!this.state.value) {
                 this.unsubscribe();
                 this.unsubscribe = undefined;
 
@@ -57,10 +77,10 @@ class Connector extends React.Component {
             // browser.
             props.data$
                 .onValue((value) => {
-                    this.state = value; // eslint-disable-line react/no-direct-mutation-state
+                    this.state.value = value; // eslint-disable-line react/no-direct-mutation-state
                 })();
 
-            if (process.env.NODE_ENV === 'development' && !this.state) {
+            if (process.env.NODE_ENV === 'development' && !this.state.value) {
                 console.error(noImmediateStateOnServerError(name));
             }
         }
@@ -68,7 +88,7 @@ class Connector extends React.Component {
 
     componentDidMount() {
         this.observer = (value) => {
-            this.setState(value);
+            this.setState({value});
         };
     }
 
@@ -79,8 +99,8 @@ class Connector extends React.Component {
     }
 
     render() {
-        return this.state
-            ? this.props.createElement(this.state)
+        return this.state.value
+            ? this.props.createElement(this.state.value)
             : null;
     }
 }
