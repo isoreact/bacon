@@ -5,19 +5,15 @@ import {IsoVerySimple as IsoVerySimpleConnected} from './data/connect/isomorphic
 import {IsoVerySimple as IsoVerySimpleHooked} from './data/hooks/isomorphic/iso-very-simple';
 
 describe('Isomorphic component props change', () => {
-    let originalProcessBrowser;
     let mountElement;
 
     beforeEach(() => {
-        originalProcessBrowser = process.browser;
-        process.browser = true;
         mountElement = document.body.appendChild(document.createElement('div'));
     });
 
     afterEach(() => {
         ReactDOM.unmountComponentAtNode(mountElement);
         document.body.removeChild(mountElement);
-        process.browser = originalProcessBrowser;
     });
 
     describe('<Connect />', () => {

@@ -1,13 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import {HydrationContext} from './context';
+import {HydrationContext, IsomorphicContext, HYDRATION} from './context';
 import keyFor from './key-for';
 
 /**
  * Hydrate all dehydrated instances of the specified isomorphic component, returning a <code>Promise</code>.
- *
- * window.__ISO_DATA__[name][elementId]
  *
  * @param {Object}                   IsomorphicComponent             - isomorphic React component created with <code>isomorphic</code>
  * @param {Object}                   [options]                       - options (see below)
@@ -22,7 +20,9 @@ export default function hydrate(
         warnIfAlreadyHydrated = true,
     } = {}
 ) {
-    if (!process.browser) {
+    if (typeof window === 'undefined') {
+        console.warn('Cannot hydrate a component outside a browser.');
+
         return;
     }
 
@@ -107,14 +107,16 @@ function hydrateElement(
     if (hydration) {
         // If we have initial data, hydrate the server-rendered component
         ReactDOM.hydrate((
-            <HydrationContext.Provider
-                value={(name, props) => ({
-                    hydration: hydration[keyFor(name, props)],
-                    elementId: element.id,
-                })}
-            >
-                <IsomorphicComponent {...props} />
-            </HydrationContext.Provider>
+            <IsomorphicContext.Provider value={HYDRATION}>
+                <HydrationContext.Provider
+                    value={(name, props) => ({
+                        hydration: hydration[keyFor(name, props)],
+                        elementId: element.id,
+                    })}
+                >
+                    <IsomorphicComponent {...props} />
+                </HydrationContext.Provider>
+            </IsomorphicContext.Provider>
         ), element);
     } else {
         // If we don't have initial data, render over the top of anything currently in the element.

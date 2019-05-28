@@ -24,17 +24,6 @@ require('cuid').mockImplementation(() => '0123456789abcdef');
 const {StyleSheet} = __DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS;
 
 describe('renderToHtml(isomorphicComponent)', () => {
-    let originalProcessBrowser;
-
-    beforeEach(() => {
-        originalProcessBrowser = process.browser;
-        process.browser = false;
-    });
-
-    afterEach(() => {
-        process.browser = originalProcessBrowser;
-    });
-
     [
         {
             name: '<Connect />',
@@ -145,8 +134,7 @@ describe('renderToHtml(isomorphicComponent)', () => {
                     StyleSheet.reset();
                 });
 
-                // TODO: Unskip when I can get this working in Travis
-                test.skip('renders correctly', async () => {
+                test('renders correctly', async () => {
                     const renderer = new StyledComponentsServerRenderer();
                     const body = await renderToHtml(
                         <IsoNestedWithStyles coefficient={9} />,

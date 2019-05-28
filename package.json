@@ -5,9 +5,7 @@
   "author": "Steve Taylor",
   "license": "MIT",
   "repository": "isoreact/bacon1",
-  "main": "dist/server.js",
-  "module": "dist/isoreact-bacon1.server.esm.min.js",
-  "browser": "dist/browser.js",
+  "main": "dist/index.js",
   "files": [
     "dist/"
   ],
@@ -29,7 +27,7 @@
     "test-run": "cross-env NODE_ENV=development jest",
     "build": "echo 'BUILD' && npm-run-all --silent build-*",
     "build-rollup": "rollup -c",
-    "build-dist": "cp browser.js dist && cp server.js dist"
+    "build-dist": "cp index.js dist"
   },
   "jest": {
     "collectCoverage": true,
@@ -49,8 +47,8 @@
   "peerDependencies": {
     "baconjs": ">=1 <3",
     "prop-types": "^15.6.2",
-    "react": "^16.4.0",
-    "react-dom": "^16.4.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "styled-components": ">=3.3.3"
   },
   "dependencies": {
