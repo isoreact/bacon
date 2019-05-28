@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import bacon from 'baconjs';
 
-import {ServerContext, HydrationContext} from './context';
+import {IsomorphicContext, ServerContext, HydrationContext, SERVER} from './context';
 import {SSR_TIMEOUT_ERROR} from './errors';
 import keyFor from './key-for';
 import Connect from './connect';
@@ -57,25 +57,11 @@ export default function isomorphic({
         render() {
             const {children, ...props} = this.props; // eslint-disable-line no-unused-vars, react/prop-types
 
-            if (process.browser) {
-                return (
-                    <HydrationContext.Consumer>
-                        {(getHydration) => {
-                            const {hydration, elementId} = getHydration(name, props) || {};
-                            const data$ = getData(props, hydration).map('.state');
-
-                            return (
-                                <Context.Provider value={{data$, name, elementId}}>
-                                    <Component />
-                                </Context.Provider>
-                            );
-                        }}
-                    </HydrationContext.Consumer>
-                );
-            } else {
-                return (
-                    <ServerContext.Consumer>
-                        {({getStream, registerStream, onError}) => {
+            return (
+                <ServerContext.Consumer>
+                    {(serverContext) => {
+                        if (serverContext) {
+                            const {getStream, registerStream, onError} = serverContext;
                             const key = keyFor(name, props);
                             let stream$ = getStream(key);
 
@@ -113,16 +99,18 @@ export default function isomorphic({
                                     if (!hasImmediateValue) {
                                         // When the stream resolves later, continue walking the tree.
                                         ReactDOMServer.renderToStaticMarkup(
-                                            <ServerContext.Provider value={{getStream, registerStream}}>
-                                                <Context.Provider
-                                                    value={{
-                                                        data$: stream$.map('.state'),
-                                                        name,
-                                                    }}
-                                                >
-                                                    <Component />
-                                                </Context.Provider>
-                                            </ServerContext.Provider>
+                                            <IsomorphicContext.Provider value={SERVER}>
+                                                <ServerContext.Provider value={{getStream, registerStream}}>
+                                                    <Context.Provider
+                                                        value={{
+                                                            data$: stream$.map(({state}) => state),
+                                                            name,
+                                                        }}
+                                                    >
+                                                        <Component />
+                                                    </Context.Provider>
+                                                </ServerContext.Provider>
+                                            </IsomorphicContext.Provider>
                                         );
                                     }
                                 })
@@ -145,10 +133,25 @@ export default function isomorphic({
                                     </Context.Provider>
                                 );
                             }
-                        }}
-                    </ServerContext.Consumer>
-                );
-            }
+                        } else {
+                            return (
+                                <HydrationContext.Consumer>
+                                    {(getHydration) => {
+                                        const {hydration, elementId} = getHydration ? getHydration(name, props) : {};
+                                        const data$ = getData(props, hydration).map(({state}) => state);
+
+                                        return (
+                                            <Context.Provider value={{data$, name, elementId}}>
+                                                <Component />
+                                            </Context.Provider>
+                                        );
+                                    }}
+                                </HydrationContext.Consumer>
+                            );
+                        }
+                    }}
+                </ServerContext.Consumer>
+            );
         }
     };
 }

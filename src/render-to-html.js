@@ -4,7 +4,7 @@ import bacon from 'baconjs';
 import cuid from 'cuid';
 import serialize from 'serialize-javascript';
 
-import {ServerContext} from './context';
+import {IsomorphicContext, ServerContext, SERVER} from './context';
 
 const defaultRender = ReactDOMServer.renderToString;
 
@@ -51,9 +51,11 @@ export default async function renderToHtml(
 
     // Start walking the element tree.
     ReactDOMServer.renderToStaticMarkup((
-        <ServerContext.Provider value={{getStream, registerStream, onError}}>
-            {isomorphicElement}
-        </ServerContext.Provider>
+        <IsomorphicContext.Provider value={SERVER}>
+            <ServerContext.Provider value={{getStream, registerStream, onError}}>
+                {isomorphicElement}
+            </ServerContext.Provider>
+        </IsomorphicContext.Provider>
     ));
 
     // Rethrow immediately produced error
@@ -91,9 +93,11 @@ export default async function renderToHtml(
 
     // Now that everything is resolved, synchronously render the html.
     const html = render((
-        <ServerContext.Provider value={{getStream}}>
-            {isomorphicElement}
-        </ServerContext.Provider>
+        <IsomorphicContext.Provider value={SERVER}>
+            <ServerContext.Provider value={{getStream}}>
+                {isomorphicElement}
+            </ServerContext.Provider>
+        </IsomorphicContext.Provider>
     ));
 
     const id = cuid();
