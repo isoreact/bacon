@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import bacon from 'baconjs';
-import cuid from 'cuid';
+import uuid from 'uuid/v1';
 import serialize from 'serialize-javascript';
 
 import {IsomorphicContext, ServerContext, SERVER} from './context';
@@ -100,7 +100,7 @@ export default async function renderToHtml(
         </IsomorphicContext.Provider>
     ));
 
-    const id = cuid();
+    const id = uuid();
 
     // Return the component HTML and some JavaScript to store props and initial data.
     return [
