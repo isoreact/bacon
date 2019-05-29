@@ -24,11 +24,11 @@ import Connect from './connect';
  * When a React context isn't provided, the emitted state is fed directly into the component's props.
  *
  * @param {Object}        isomorphicComponent               - isomorphic component details
- * @param {String}        isomorphicComponent.name          - name
+ * @param {string}        isomorphicComponent.name          - name
  * @param {Function}      isomorphicComponent.component     - React component
  * @param {React.Context} [isomorphicComponent.context]     - context to provide and consume the data stream
  * @param {getData}       isomorphicComponent.getData       - data stream creation function
- * @param {timeout}       [isomorphicComponent.timeout]     - the number of milliseconds to wait for the stream to emit its first value
+ * @param {number}        [isomorphicComponent.timeout]     - the number of milliseconds to wait for the stream to emit its first value
  * @param {Object}        [isomorphicComponent.propTypes]   - propType validations
  * @returns {Function} the created isomorphic component
  */
@@ -55,7 +55,7 @@ export default function isomorphic({
         static propTypes = propTypes;
 
         render() {
-            const {children, ...props} = this.props; // eslint-disable-line no-unused-vars, react/prop-types
+            const {children, ...props} = this.props;
 
             return (
                 <ServerContext.Consumer>

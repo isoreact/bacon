@@ -1,4 +1,4 @@
-export const SSR_TIMEOUT_ERROR = Symbol();
+export const SSR_TIMEOUT_ERROR = Symbol('timeout');
 
 export function noImmediateStateOnServerError(name) {
     return `An unexpected error occurred while server-side rendering '${name || '(unknown)'}'`;

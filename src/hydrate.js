@@ -9,8 +9,8 @@ import keyFor from './key-for';
  *
  * @param {Object}                   IsomorphicComponent             - isomorphic React component created with <code>isomorphic</code>
  * @param {Object}                   [options]                       - options (see below)
- * @param {Boolean}                  [options.warnIfNotFound=false]  - whether or not to warn if the dehydrated isomorphic component is not found
- * @param {Boolean}                  [options.warnIfAlreadyHydrated] - whether or not to warn if the isomorphic component has already been hydrated
+ * @param {boolean}                  [options.warnIfNotFound=false]  - whether or not to warn if the dehydrated isomorphic component is not found
+ * @param {boolean}                  [options.warnIfAlreadyHydrated] - whether or not to warn if the isomorphic component has already been hydrated
  * @returns {undefined}
  */
 export default function hydrate(
