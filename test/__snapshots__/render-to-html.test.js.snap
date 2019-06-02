@@ -155,6 +155,18 @@ exports[`renderToHtml(isomorphicComponent) <Connect /> styled nested isomorphic 
 </body>
 `;
 
+exports[`renderToHtml(isomorphicComponent) onData child overrides parent; last sibling wins accumulates the expected data 1`] = `
+Object {
+  "maxAge": 60,
+}
+`;
+
+exports[`renderToHtml(isomorphicComponent) onData parent overrides child; first sibling wins accumulates the expected data 1`] = `
+Object {
+  "maxAge": 30,
+}
+`;
+
 exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() nested isomorphic component renders correctly 1`] = `
 <head></head>
 
