@@ -135,7 +135,7 @@ describe('renderToHtml(isomorphicComponent)', () => {
                 });
 
                 // TODO: Fix different sc-component-id on Travis
-                test.skip('renders correctly', async () => {
+                test('renders correctly', async () => {
                     const renderer = new StyledComponentsServerRenderer();
                     const body = await renderToHtml(
                         <IsoNestedWithStyles coefficient={9} />,
