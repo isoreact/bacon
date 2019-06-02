@@ -19,5 +19,8 @@ export default function getData(props, hydration) {
         hydration: {
             baseValue: baseValue$,
         },
+        data: {
+            maxAge: 60,
+        },
     });
 }

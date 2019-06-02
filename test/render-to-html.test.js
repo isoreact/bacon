@@ -206,4 +206,50 @@ describe('renderToHtml(isomorphicComponent)', () => {
             expect(error).toBe('Nope!');
         });
     });
+
+    // Needs more tests
+    describe('onData', () => {
+        let accumulatedData = {};
+
+        afterEach(() => {
+            accumulatedData = {};
+        });
+
+        describe('child overrides parent; last sibling wins', () => {
+            beforeEach(() => {
+                return renderToHtml(
+                    <IsoNestedConnected coefficient={9} />,
+                    {
+                        onData(data) {
+                            Object.assign(accumulatedData, data);
+                        },
+                    }
+                );
+            });
+
+            test('accumulates the expected data', () => {
+                expect(accumulatedData).toMatchSnapshot();
+            });
+        });
+
+        describe('parent overrides child; first sibling wins', () => {
+            beforeEach(() => {
+                return renderToHtml(
+                    <IsoNestedConnected coefficient={9} />,
+                    {
+                        onData(data) {
+                            accumulatedData = {
+                                ...data,
+                                ...accumulatedData,
+                            };
+                        },
+                    }
+                );
+            });
+
+            test('accumulates the expected data', () => {
+                expect(accumulatedData).toMatchSnapshot();
+            });
+        });
+    });
 });

@@ -23,6 +23,7 @@ export default async function renderToHtml(
     {
         render = defaultRender,
         className,
+        onData,
     } = {}
 ) {
     const {__isomorphic_name__: name} = isomorphicElement.type;
@@ -94,7 +95,7 @@ export default async function renderToHtml(
     // Now that everything is resolved, synchronously render the html.
     const html = render((
         <IsomorphicContext.Provider value={SERVER}>
-            <ServerContext.Provider value={{getStream}}>
+            <ServerContext.Provider value={{getStream, onData}}>
                 {isomorphicElement}
             </ServerContext.Provider>
         </IsomorphicContext.Provider>
