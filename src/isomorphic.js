@@ -10,9 +10,16 @@ import Connect from './connect';
 /**
  * A function to create a Bacon.js <code>Observable</code>, optionally taking initial data when hydrating in the browser.
  *
+ * When <code>immediate</code> is <code>true</code>, the stream must produce its first event to subscribers immediately.
+ * If <code>hydration</code> is provided, it should contain sufficient information to allow the stream to produce its
+ * first event immediately, without producing a loading state. When <code>hydration</code> isn't provided and there is
+ * otherwise insufficient data to produce an event immediately, the stream should produce an event that indicates a
+ * loading state immediately.
+ *
  * @callback getData
- * @param {Object} props       - props passed to the isomorphic component, some of which it may use to look up data
- * @param {Object} [hydration] - initial data if we're in the browser and hydrating
+ * @param {Object}               props         - props passed to the isomorphic component, some of which it may use to look up data
+ * @param {Object|undefined}     hydration     - initial data if we're in the browser and hydrating
+ * @param {boolean}              immediate     - whether or not the stream should produce its first event to subscribers immediately
  */
 
 /**
@@ -41,7 +48,6 @@ export default function isomorphic({
     propTypes, // eslint-disable-line react/forbid-foreign-prop-types
 }) {
     // When context isn't provided, inject the state directly into the component.
-    // TODO: Make this use case more efficient by bypassing context completely.
     const Context = context || React.createContext(null);
     const Component = context ? C : () => (
         <Connect context={Context}>
@@ -69,7 +75,7 @@ export default function isomorphic({
                                             let stream$ = getStream(key);
 
                                             if (!stream$) {
-                                                stream$ = getData(props, undefined).first();
+                                                stream$ = getData(props, undefined, false).first();
                                                 registerStream(key, stream$);
                                             }
 
@@ -156,7 +162,7 @@ export default function isomorphic({
                                     <HydrationContext.Consumer>
                                         {(getHydration) => {
                                             const {hydration, elementId} = getHydration ? getHydration(name, props) : {};
-                                            const data$ = getData(props, hydration).map(({state}) => state);
+                                            const data$ = getData(props, hydration, true).map(({state}) => state);
 
                                             return (
                                                 <Context.Provider value={{data$, name, elementId}}>
@@ -168,7 +174,7 @@ export default function isomorphic({
                                 );
 
                             default: { // Pure client-side rendering
-                                const data$ = getData(props).map(({state}) => state);
+                                const data$ = getData(props, undefined, true).map(({state}) => state);
 
                                 return (
                                     <Context.Provider value={{data$, name}}>

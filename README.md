@@ -47,9 +47,20 @@ const ProfileName = () => (
     <section className="profile__name">
         <Connect
             context={profileContext}
-            isEqual={({name: a}, {name: b}) => a === b}
+            isEqual={(a, b) => (
+                a.isLoading === b.isLoading
+                && a.name === b.name
+            )}
         >
-            {({name}) => name}
+            {({isLoading, name}) => (
+                isLoading ? (
+                    <em>
+                        Loading...
+                    </em>
+                ) : (
+                    name
+                )
+            )}
         </Connect>
     </section>
 );
@@ -57,8 +68,12 @@ const ProfileName = () => (
 const ProfilePhoto = () => (
     <section className="profile__photo">
         <Connect context={profileContext}>
-            {({photo}) => (
-                <img className="profile__photo-img" src={photo} />
+            {({isLoading, photo}) => (
+                <img
+                    className="profile__photo-img"
+                    src={isLoading ? '/static/img/profile-loading.gif' : photo}
+                    alt={isLoading ? 'Loading profile' : 'Profile photo'}
+                />
             )}
         </Connect>
     </section>
@@ -74,8 +89,8 @@ const Profile = () => (
 export default Profile;
 ```
 
-You might have noticed `isEqual={({name: a}, {name: b}) => a === b}` in one of the `<Connect />` elements. It's an
-optional function that allows `Connect` to skip duplicates when it determines they're equal.
+You might have noticed `isEqual` in one of the `<Connect />` elements. It's an optional function that allows `Connect`
+to skip duplicates when it determines they're equal.
 
 Define your component's event stream and make it isomorphic:
 
@@ -93,7 +108,7 @@ export default isomorphic({
     name: 'iso-profile',
     component: Profile,
     context: profileContext,
-    getData: (props, hydration) => {
+    getData: (props, hydration, immediate) => {
         const {userId} = props;
         
         const name$ = hydration
@@ -104,22 +119,31 @@ export default isomorphic({
             ? Bacon.constant({photo: hydration.photo})
             : fetchPhoto(userId);
         
-        return Bacon.combineTemplate({
-            // React component rendered with this state as its props
-            state: {
-                name: name$,
-                photo: photo$,
-            },
-            // Data rendered alongside the React element in the HTML page
-            hydration: {
-                name: name$,
-                photo: photo$,
-            },
-            // Additional data accumulated during server-side rendering
-            data: {
-                maxAge: 60,
-            },
-        });
+        return Bacon
+            .combineTemplate({
+                // React component rendered with this state as its props
+                state: {
+                    name: name$,
+                    photo: photo$,
+                },
+                // Data rendered alongside the React element in the HTML page
+                hydration: {
+                    name: name$,
+                    photo: photo$,
+                },
+                // Additional data accumulated during server-side rendering
+                data: {
+                    maxAge: 60,
+                },
+            })
+            // Start with a loading state (which is skipped by Bacon.js when combineTemplate resolves immediately) ...
+            .startWith({
+                state: {
+                    isLoading: true,
+                },
+            })
+            // ... but skip it if an immediate value isn't required
+            .skip(immediate ? 0 : 1);
     },
     propTypes: {
         userId: PropTypes.string.isRequired,
@@ -127,11 +151,12 @@ export default isomorphic({
 });
 ```
 
-The general contract of `getData(props, hydration)` is:
+The general contract of `getData(props, hydration, immediate)` is:
 
 * Return an observable that emits objects of the form `{state, hydration, data}` where both `state` and `hydration` are
   objects and `data` is any additional data you want to accumulate during server-side rendering.
-* If `getData` is executed client-side, the observable is expected to immediately produce an event.
+* If the third parameter (`immediate`) provided to `getData` is `true`, the observable is expected to immediately
+  produce an event.
 * Events must contain `hydration` during server-side rendering.
 * Events can contain `hydration` and/or `data` client-side, but it will have no effect.
 * Keep hydration small to keep server-side rendered HTML pages small. Only attach the minimum amount of data required
@@ -189,8 +214,8 @@ hydrate(IsoProfile);
 ```
 
 When `hydrate` is called, it finds all the server-side rendered instances of the isomorphic component in the DOM, reads
-their attached `props` and `hydration` data, then calls `getData(props, hydration)`, expecting the client to render the
-profiles synchronously, without having to load data from APIs.
+their attached `props` and `hydration` data, then calls `getData(props, hydration, immediate)`, expecting the client to
+render the profiles synchronously, without having to load data from APIs.
 
 Bear in mind that isomorphic components are just React components, so you can use them directly in JSX and you don't
 even need to initially render them on the server. You could even use this library just for connecting to Bacon.js.
@@ -204,16 +229,25 @@ by `getData` will be fed directly into the component's props (which otherwise do
 
 ```jsx harmony
 import React from 'react';
-import {useIsomorphicContext} from '@isoreact/bacon1';
 
-export default function Profile({name, photo}) {
+export default function Profile({isLoading, name, photo}) {
     return (
         <section className="profile">
             <section className="profile__name">
-                {name}
+                {isLoading ? (
+                    <em>
+                        Loading...
+                    </em>
+                ) : (
+                    name
+                )}
             </section>
             <section className="profile__photo">
-                <img className="profile__photo-img" src={photo} />
+                <img
+                    className="profile__photo-img"
+                    src={isLoading ? '/static/img/profile-loading.gif' : photo}
+                    alt={isLoading ? 'Loading profile' : 'Profile photo'}
+                />
             </section>
         </section>
     );
@@ -231,7 +265,7 @@ import fetchPhoto from './streams/fetch-photo';
 export default isomorphic({
     name: 'iso-profile',
     component: Profile,
-    getData: (props, hydration) => {
+    getData: (props, hydration, immediate) => {
         const {userId} = props;
         
         const name$ = hydration
@@ -242,18 +276,31 @@ export default isomorphic({
             ? Bacon.constant({photo: hydration.photo})
             : fetchPhoto(userId);
         
-        return Bacon.combineTemplate({
-            // React component rendered with this state as its props
-            state: {
-                name: name$,
-                photo: photo$,
-            },
-            // Data rendered alongside the React element in the HTML page
-            hydration: {
-                name: name$,
-                photo: photo$,
-            },
-        });
+        return Bacon
+            .combineTemplate({
+                // React component rendered with this state as its props
+                state: {
+                    name: name$,
+                    photo: photo$,
+                },
+                // Data rendered alongside the React element in the HTML page
+                hydration: {
+                    name: name$,
+                    photo: photo$,
+                },
+                // Additional data accumulated during server-side rendering
+                data: {
+                    maxAge: 60,
+                },
+            })
+            // Start with a loading state (which is skipped by Bacon.js when combineTemplate resolves immediately) ...
+            .startWith({
+                state: {
+                    isLoading: true,
+                },
+            })
+            // ... but skip it if an immediate value isn't required
+            .skip(immediate ? 0 : 1);
     },
     propTypes: {
         userId: PropTypes.string.isRequired,
@@ -283,27 +330,45 @@ export default isomorphic({
 });
 ```
 
+However, it means that React is potentially diffing larger chunks of virtual DOM.
+
 ## Hooks
 
-Support for hooks is now available as an alternative to `<Connect />`.
+A custom hook is provided as an alternative to `<Connect />`.
 
 ```jsx harmony
 // profile.js
 import React from 'react';
 import {useIsomorphicContext} from '@isoreact/bacon1';
-import isEqual from 'lodash/isEqual';
 import profileContext from './profile-context';
 
 export default function Profile() {
-    const {name, photo} = useIsomorphicContext(profileContext, isEqual);
+    const {isLoading, name, photo} = useIsomorphicContext(
+        profileContext, // same as Connect's context prop
+        (a, b) => (     // same as Connect's isEqual prop
+            a.isLoading === b.isLoading
+            && a.name === b.name
+            && a.photo === b.photo
+        )
+    );
 
     return (
         <section className="profile">
             <section className="profile__name">
-                {name}
+                {isLoading ? (
+                    <em>
+                        Loading...
+                    </em>
+                ) : (
+                    name
+                )}
             </section>
             <section className="profile__photo">
-                <img className="profile__photo-img" src={photo} />
+                <img
+                    className="profile__photo-img"
+                    src={isLoading ? '/static/img/profile-loading.gif' : photo}
+                    alt={isLoading ? 'Loading profile' : 'Profile photo'}
+                />
             </section>
         </section>
     );
