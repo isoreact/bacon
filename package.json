@@ -15,6 +15,8 @@
   "scripts": {
     "start": "rimraf dist && rollup -c -w",
     "ci-cd": "echo 'CI-CD' && npm-run-all --silent clean --parallel ci-cd-*",
+    "ci-cd-audit": "npm audit",
+    "ci-cd-lint": "npm-run-all --silent lint",
     "ci-cd-test": "npm run test",
     "ci-cd-build": "npm run build",
     "clean": "echo 'CLEAN' && npm-run-all --silent --parallel clean-*",
@@ -22,8 +24,6 @@
     "clean-dist": "rimraf dist",
     "lint": "eslint src/**/*.js",
     "test": "echo 'TEST' && cross-env NODE_ENV=test npm-run-all --silent test-*",
-    "test-audit": "npm audit || echo '\\nnpm audit failures temporarily ignored!\\n'",
-    "test-lint": "npm-run-all --silent lint",
     "test-run": "cross-env NODE_ENV=development jest",
     "build": "echo 'BUILD' && npm-run-all --silent build-*",
     "build-rollup": "rollup -c",
