@@ -115,6 +115,10 @@ export default isomorphic({
                 name: name$,
                 photo: photo$,
             },
+            // Additional data accumulated during server-side rendering
+            data: {
+                maxAge: 60,
+            },
         });
     },
     propTypes: {
@@ -125,11 +129,11 @@ export default isomorphic({
 
 The general contract of `getData(props, hydration)` is:
 
-* Return an observable that emits objects of the form `{state, hydration}` where both `state` and `hydration` are
-  objects.
-* If `getData` is provided a `hydration` object, the observable is expected to immediately produce an event.
-* Events must contain `hydration` only when the `hydration` parameter is not present (i.e. on the server).
-* Events can contain `hydration` when the `hydration` parameter is present, but it will have no effect.
+* Return an observable that emits objects of the form `{state, hydration, data}` where both `state` and `hydration` are
+  objects and `data` is any additional data you want to accumulate during server-side rendering.
+* If `getData` is executed client-side, the observable is expected to immediately produce an event.
+* Events must contain `hydration` during server-side rendering.
+* Events can contain `hydration` and/or `data` client-side, but it will have no effect.
 * Keep hydration small to keep server-side rendered HTML pages small. Only attach the minimum amount of data required
   to hydrate isomorphic components without them having to fetch data from APIs.
 
@@ -142,12 +146,27 @@ import {IsoProfile} from './iso-profile';
 
 // Server-side render an HTML page consisting of the profiles from a list of user IDs.
 async function renderUserProfilesPage(userIds) {
+    let maxAge = 60; // Default max-age to 60s
+
     // Generate server-side rendered profile of users
     const htmlArray = await Promise.all(
-        userIds.map((userId) => renderToHtml(<IsoProfile userId={userId} />))
+        userIds.map((userId) => renderToHtml(
+            <IsoProfile userId={userId} />,
+            {
+                onData: (data) => {
+                    // Keep the smallest non-zero maxAge
+                    if (data.maxAge && data.maxAge < maxAge) {
+                        maxAge = data.maxAge;
+                    }
+                },
+            }
+        ))
     );
 
-    return `<body>${htmlArray.join('')}</body>`;
+    return {
+        maxAge,
+        html: `<body>${htmlArray.join('')}</body>`,
+    };
 }
 ```
 
@@ -155,7 +174,9 @@ When `renderToHtml` is called, it will call each isomorphic components' `getData
 component's props (in this case, `userId`). When the stream returned by `getData` produces its first event (an object
 consisting of `state` to inject into the React component and `hydration` to attach to the HTML page), the isomorphic
 component's React component will be rendered with the `state` as its `props` and the `hydration` data will be rendered
-adjacent to it in the HTML page.
+adjacent to it in the HTML page. The `data` property of the event will be passed to the `onData` function specified in
+`renderToHtml`, if specified at all. It is up to the `onData` function to accumulate `data` objects as it sees fit,
+bearing in mind that `onData` is called in render order, which is defined by `ReactDOM.renderToString`.
 
 Somewhere on the client:
 

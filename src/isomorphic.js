@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import bacon from 'baconjs';
 
-import {IsomorphicContext, ServerContext, HydrationContext, SERVER} from './context';
+import {IsomorphicContext, ServerContext, HydrationContext, SERVER, HYDRATION} from './context';
 import {SSR_TIMEOUT_ERROR} from './errors';
 import keyFor from './key-for';
 import Connect from './connect';
@@ -58,99 +58,127 @@ export default function isomorphic({
             const {children, ...props} = this.props;
 
             return (
-                <ServerContext.Consumer>
-                    {(serverContext) => {
-                        if (serverContext) {
-                            const {getStream, registerStream, onError} = serverContext;
-                            const key = keyFor(name, props);
-                            let stream$ = getStream(key);
+                <IsomorphicContext.Consumer>
+                    {(phase) => {
+                        switch (phase) {
+                            case SERVER: // Server-side rendering
+                                return (
+                                    <ServerContext.Consumer>
+                                        {({getStream, registerStream, onError, onData}) => {
+                                            const key = keyFor(name, props);
+                                            let stream$ = getStream(key);
 
-                            if (!stream$) {
-                                stream$ = getData(props, undefined).first();
-                                registerStream(key, stream$);
-                            }
-
-                            let immediate = true;
-                            let immediateValue = null;
-                            let hasImmediateValue = false;
-
-                            bacon
-                                .mergeAll(
-                                    stream$
-                                        .first()
-                                        .doAction(({state}) => {
-                                            if (immediate) {
-                                                hasImmediateValue = true;
-                                                immediateValue = state;
+                                            if (!stream$) {
+                                                stream$ = getData(props, undefined).first();
+                                                registerStream(key, stream$);
                                             }
-                                        })
-                                        .doError((error) => {
-                                            if (immediate) {
-                                                onError(error);
-                                            }
-                                        }),
-                                    // Insert an error into the stream after the timeout, if specified, has elapsed.
-                                    timeout === undefined
-                                        ? bacon.never()
-                                        : bacon.later(timeout).flatMapLatest(() => new bacon.Error(SSR_TIMEOUT_ERROR))
-                                )
-                                .firstToPromise()
-                                .then(() => {
-                                    if (!hasImmediateValue) {
-                                        // When the stream resolves later, continue walking the tree.
-                                        ReactDOMServer.renderToStaticMarkup(
-                                            <IsomorphicContext.Provider value={SERVER}>
-                                                <ServerContext.Provider value={{getStream, registerStream}}>
+
+                                            let immediate = true;
+                                            let immediateValue = null;
+                                            let hasImmediateValue = false;
+
+                                            bacon
+                                                .mergeAll(
+                                                    stream$
+                                                        .first()
+                                                        .doAction(({state}) => {
+                                                            // Get the first value if it resolves synchronously
+                                                            if (immediate) {
+                                                                hasImmediateValue = true;
+                                                                immediateValue = state;
+                                                            }
+                                                        })
+                                                        .doAction(({data}) => {
+                                                            // If we're accumulating data and there's data to accumulate, accumulate it.
+                                                            if (onData && data) {
+                                                                onData(data);
+                                                            }
+                                                        })
+                                                        .doError((error) => {
+                                                            if (immediate) {
+                                                                onError(error);
+                                                            }
+                                                        }),
+
+                                                    // Insert an error into the stream after the timeout, if specified, has elapsed.
+                                                    timeout === undefined
+                                                        ? bacon.never()
+                                                        : bacon.later(timeout).flatMapLatest(() => new bacon.Error(SSR_TIMEOUT_ERROR))
+                                                )
+                                                .firstToPromise()
+                                                .then(() => {
+                                                    if (!hasImmediateValue) {
+                                                        // When the stream resolves later, continue walking the tree.
+                                                        ReactDOMServer.renderToStaticMarkup(
+                                                            <IsomorphicContext.Provider value={SERVER}>
+                                                                <ServerContext.Provider value={{getStream, registerStream}}>
+                                                                    <Context.Provider
+                                                                        value={{
+                                                                            data$: stream$.map(({state}) => state),
+                                                                            name,
+                                                                        }}
+                                                                    >
+                                                                        <Component />
+                                                                    </Context.Provider>
+                                                                </ServerContext.Provider>
+                                                            </IsomorphicContext.Provider>
+                                                        );
+                                                    }
+                                                })
+                                                .catch((error) => {
+                                                    onError(error);
+                                                });
+
+                                            immediate = false;
+
+                                            // If the stream is resolved, render this component.
+                                            if (hasImmediateValue) {
+                                                return (
                                                     <Context.Provider
                                                         value={{
-                                                            data$: stream$.map(({state}) => state),
+                                                            data$: bacon.constant(immediateValue),
                                                             name,
                                                         }}
                                                     >
                                                         <Component />
                                                     </Context.Provider>
-                                                </ServerContext.Provider>
-                                            </IsomorphicContext.Provider>
-                                        );
-                                    }
-                                })
-                                .catch((error) => {
-                                    onError(error);
-                                });
-
-                            immediate = false;
-
-                            // If the stream is resolved, render it.
-                            if (hasImmediateValue) {
-                                return (
-                                    <Context.Provider
-                                        value={{
-                                            data$: bacon.constant(immediateValue),
-                                            name,
+                                                );
+                                            } else {
+                                                // We don't have an immediate value, so don't render any further.
+                                                return null;
+                                            }
                                         }}
-                                    >
+                                    </ServerContext.Consumer>
+                                );
+
+                            case HYDRATION: // Hydrating or continuing to render after hydration
+                                return (
+                                    <HydrationContext.Consumer>
+                                        {(getHydration) => {
+                                            const {hydration, elementId} = getHydration ? getHydration(name, props) : {};
+                                            const data$ = getData(props, hydration).map(({state}) => state);
+
+                                            return (
+                                                <Context.Provider value={{data$, name, elementId}}>
+                                                    <Component />
+                                                </Context.Provider>
+                                            );
+                                        }}
+                                    </HydrationContext.Consumer>
+                                );
+
+                            default: { // Pure client-side rendering
+                                const data$ = getData(props).map(({state}) => state);
+
+                                return (
+                                    <Context.Provider value={{data$, name}}>
                                         <Component />
                                     </Context.Provider>
                                 );
                             }
-                        } else {
-                            return (
-                                <HydrationContext.Consumer>
-                                    {(getHydration) => {
-                                        const {hydration, elementId} = getHydration ? getHydration(name, props) : {};
-                                        const data$ = getData(props, hydration).map(({state}) => state);
-
-                                        return (
-                                            <Context.Provider value={{data$, name, elementId}}>
-                                                <Component />
-                                            </Context.Provider>
-                                        );
-                                    }}
-                                </HydrationContext.Consumer>
-                            );
                         }
                     }}
-                </ServerContext.Consumer>
+                </IsomorphicContext.Consumer>
             );
         }
     };
