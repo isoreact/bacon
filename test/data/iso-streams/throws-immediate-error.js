@@ -1,8 +1,7 @@
-import bacon from 'baconjs';
+import {constant, Error as BaconError} from 'baconjs';
 
 export default function getData() {
-    return bacon
-        .constant(null)
-        .flatMapLatest(() => new bacon.Error('Nope!'))
+    return constant(null)
+        .flatMapLatest(() => new BaconError('Nope!'))
         .toProperty();
 }

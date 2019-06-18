@@ -1,6 +1,6 @@
-import bacon from 'baconjs';
+import {later} from 'baconjs';
 
 // Simulated external data source
 export default function fetchBaseValue() {
-    return bacon.later(50, 5);
+    return later(50, 5);
 }
