@@ -1,9 +1,9 @@
-import bacon from 'baconjs';
+import {combineTemplate} from 'baconjs';
 
 export default function getData(props) {
     const {power = 1} = props;
 
-    return bacon.combineTemplate({
+    return combineTemplate({
         state: {
             x: 5 ** power,
         },

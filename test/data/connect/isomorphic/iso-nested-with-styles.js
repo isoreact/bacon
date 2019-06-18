@@ -1,5 +1,3 @@
-import propTypes from 'prop-types';
-
 import hydrate from '../../../../src/hydrate';
 import isomorphic from '../../../../src/isomorphic';
 
@@ -12,9 +10,6 @@ const isoNestedWithStyles = {
     component: NestedWithStyles,
     context: NestedWithStylesContext,
     getData,
-    propTypes: {
-        coefficient: propTypes.number,
-    },
 };
 
 export const IsoNestedWithStyles = isomorphic(isoNestedWithStyles);

@@ -1,38 +1,46 @@
-# IsoReact &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/isoreact/bacon1/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/@isoreact/bacon1.svg?style=flat)](https://www.npmjs.com/package/@isoreact/bacon1) ![npm](https://img.shields.io/npm/dw/@isoreact/bacon1.svg) [![Build Status](https://travis-ci.org/isoreact/bacon1.svg?branch=develop)](https://travis-ci.org/isoreact/bacon1) [![PRs Welcome](https://img.shields.io/badge/pull_requests-welcome-brightgreen.svg)](https://github.com/isoreact/bacon1/blob/master/CONTRIBUTING.md)
+# IsoReact &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/isoreact/bacon/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/@isoreact/bacon.svg?style=flat)](https://www.npmjs.com/package/@isoreact/bacon) ![npm](https://img.shields.io/npm/dw/@isoreact/bacon.svg) [![Build Status](https://travis-ci.org/isoreact/bacon.svg?branch=develop)](https://travis-ci.org/isoreact/bacon) [![PRs Welcome](https://img.shields.io/badge/pull_requests-welcome-brightgreen.svg)](https://github.com/isoreact/bacon/blob/master/CONTRIBUTING.md)
 
 IsoReact is a collection of libraries to build isomorphic React components. Each edition of IsoReact focuses on a
-specific state management library. IsoReact-Bacon1 is the Bacon.js 1 edition of IsoReact.
+specific state management library. IsoReact-Bacon is the Bacon.js edition of IsoReact, supporting all versions of
+Bacon.js from 0.7.59 onwards.
 
 Features:
 
-* Server-side render fully populated components (not just loading states).
+* State management using [Bacon.js](https://baconjs.github.io).
+* Connect state to the component tree via [context](https://reactjs.org/docs/context.html).
+* Asynchronously server-side render the entire UI with fully populated components, not just loading states.
 * Hydrate server-side rendered components without hitting APIs for the initial
   client-side render.
-* State management with [Bacon.js 1](https://baconjs.github.io/api.html).
-* Connect state to the component tree via the [new context API](https://reactjs.org/docs/context.html).
-
-This is a library, not a framework. It is focused on state management and
-isomorphism and should otherwise stay out of your way.
 
 ## Installation
 
 ```
-npm i -S @isoreact/bacon1
+npm i -S @isoreact/bacon
 ```
 
-## Examples
+## Import and build
 
-See [isoreact/example](https://github.com/isoreact/bacon1-example)
+Two modules are available for importing:
+
+* `@isoreact/bacon` - this library's source (recommended)
+* `@isoreact/bacon/dist` - prebuilt library using `@babel/preset-env` and default browserslist targets
+
+A `.babelrc` file is provided to support Babel traversing this library in `node_modules`. If you're using Browserify,
+package.json contains a `"browserify"` field to instruct Browserify to use `babelify` and `envify`. This library
+provides all the required Babel and Browserify dependencies.
+
+**Important:** When importing this library's source, ensure the transpiler converts all references to
+`process.env.NODE_ENV` into its value at compile time. This will happen automatically if you use Browserify.
 
 ## Usage
 
-Create a context to connect a Bacon.js 1 event stream to your React component:
+Create a context to connect a Bacon.js observable to your React component:
 
 ```js
 // profile-context.js
 import React from 'react';
 
-export default React.createContext();
+export default React.createContext(null);
 ```
 
 Create your React component hierarchy, connecting your context to it using `<Connect context={yourContext} />`:
@@ -40,7 +48,7 @@ Create your React component hierarchy, connecting your context to it using `<Con
 ```jsx harmony
 // profile.js
 import React from 'react';
-import {Connect} from '@isoreact/bacon1';
+import {Connect} from '@isoreact/bacon';
 import profileContext from './profile-context';
 
 const ProfileName = () => (
@@ -89,16 +97,16 @@ const Profile = () => (
 export default Profile;
 ```
 
-You might have noticed `isEqual` in one of the `<Connect />` elements. It's an optional function that allows `Connect`
-to skip duplicates when it determines they're equal.
+NOTE: `isEqual` is an optional function that allows `Connect` to skip duplicates when it determines they're equal. It's
+a performance optimization, much like `shouldComponentUpdate`. It is used internally by
+[`skipDuplicates`](https://baconjs.github.io/api3/classes/observable.html#skipduplicates).
 
 Define your component's event stream and make it isomorphic:
 
 ```js
 // iso-profile.js
-import PropTypes from 'prop-types';
-import Bacon from 'baconjs';
-import {isomorphic} from '@isoreact/bacon1';
+import {combineTemplate, constant} from 'baconjs';
+import {isomorphic} from '@isoreact/bacon';
 import Profile from './profile';
 import profileContext from './profile-context';
 import fetchName from './streams/fetch-name';
@@ -110,32 +118,31 @@ export default isomorphic({
     context: profileContext,
     getData: (props, hydration, immediate) => {
         const {userId} = props;
-        
+
         const name$ = hydration
-            ? Bacon.constant({name: hydration.name})
+            ? constant({name: hydration.name})
             : fetchName(userId);
-        
+
         const photo$ = hydration
-            ? Bacon.constant({photo: hydration.photo})
+            ? constant({photo: hydration.photo})
             : fetchPhoto(userId);
-        
-        return Bacon
-            .combineTemplate({
-                // React component rendered with this state as its props
-                state: {
-                    name: name$,
-                    photo: photo$,
-                },
-                // Data rendered alongside the React element in the HTML page
-                hydration: {
-                    name: name$,
-                    photo: photo$,
-                },
-                // Additional data accumulated during server-side rendering
-                data: {
-                    maxAge: 60,
-                },
-            })
+
+        return combineTemplate({
+            // React component rendered with this state as its props
+            state: {
+                name: name$,
+                photo: photo$,
+            },
+            // Data rendered alongside the React element in the HTML page
+            hydration: {
+                name: name$,
+                photo: photo$,
+            },
+            // Additional data accumulated during server-side rendering
+            data: {
+                maxAge: 60,
+            },
+        })
             // Start with a loading state (which is skipped by Bacon.js when combineTemplate resolves immediately) ...
             .startWith({
                 state: {
@@ -144,9 +151,6 @@ export default isomorphic({
             })
             // ... but skip it if an immediate value isn't required
             .skip(immediate ? 0 : 1);
-    },
-    propTypes: {
-        userId: PropTypes.string.isRequired,
     },
 });
 ```
@@ -166,7 +170,7 @@ Somewhere on the server:
 
 ```jsx harmony
 import React from 'react';
-import {renderToHtml} from '@isoreact/bacon1';
+import {renderToHtml} from '@isoreact/bacon';
 import {IsoProfile} from './iso-profile';
 
 // Server-side render an HTML page consisting of the profiles from a list of user IDs.
@@ -206,7 +210,7 @@ bearing in mind that `onData` is called in render order, which is defined by `Re
 Somewhere on the client:
 
 ```js
-import {hydrate} from '@isoreact/bacon1';
+import {hydrate} from '@isoreact/bacon';
 import IsoProfile from './iso-profile';
 
 // Hydrate all instances of iso-profile on the page
@@ -255,9 +259,8 @@ export default function Profile({isLoading, name, photo}) {
 ```
 
 ```jsx harmony
-import PropTypes from 'prop-types';
-import Bacon from 'baconjs';
-import {isomorphic} from '@isoreact/bacon1';
+import {combineTemplate, constant} from 'baconjs';
+import {isomorphic} from '@isoreact/bacon';
 import Profile from './profile';
 import fetchName from './streams/fetch-name';
 import fetchPhoto from './streams/fetch-photo';
@@ -267,32 +270,31 @@ export default isomorphic({
     component: Profile,
     getData: (props, hydration, immediate) => {
         const {userId} = props;
-        
+
         const name$ = hydration
-            ? Bacon.constant({name: hydration.name})
+            ? constant({name: hydration.name})
             : fetchName(userId);
-        
+
         const photo$ = hydration
-            ? Bacon.constant({photo: hydration.photo})
+            ? constant({photo: hydration.photo})
             : fetchPhoto(userId);
-        
-        return Bacon
-            .combineTemplate({
-                // React component rendered with this state as its props
-                state: {
-                    name: name$,
-                    photo: photo$,
-                },
-                // Data rendered alongside the React element in the HTML page
-                hydration: {
-                    name: name$,
-                    photo: photo$,
-                },
-                // Additional data accumulated during server-side rendering
-                data: {
-                    maxAge: 60,
-                },
-            })
+
+        return combineTemplate({
+            // React component rendered with this state as its props
+            state: {
+                name: name$,
+                photo: photo$,
+            },
+            // Data rendered alongside the React element in the HTML page
+            hydration: {
+                name: name$,
+                photo: photo$,
+            },
+            // Additional data accumulated during server-side rendering
+            data: {
+                maxAge: 60,
+            },
+        })
             // Start with a loading state (which is skipped by Bacon.js when combineTemplate resolves immediately) ...
             .startWith({
                 state: {
@@ -301,9 +303,6 @@ export default isomorphic({
             })
             // ... but skip it if an immediate value isn't required
             .skip(immediate ? 0 : 1);
-    },
-    propTypes: {
-        userId: PropTypes.string.isRequired,
     },
 });
 ```
@@ -339,7 +338,7 @@ A custom hook is provided as an alternative to `<Connect />`.
 ```jsx harmony
 // profile.js
 import React from 'react';
-import {useIsomorphicContext} from '@isoreact/bacon1';
+import {useIsomorphicContext} from '@isoreact/bacon';
 import profileContext from './profile-context';
 
 export default function Profile() {
@@ -381,7 +380,7 @@ The server-side rendering portion of the above example can be updated as follows
 
 ```jsx harmony
 import React from 'react';
-import {renderToHtml, StyledComponentsServerRenderer} from '@isoreact/bacon1';
+import {renderToHtml, StyledComponentsServerRenderer} from '@isoreact/bacon';
 import {IsoProfile} from './iso-profile';
 
 // Server-side render an HTML page consisting of the profiles from a list of user IDs.

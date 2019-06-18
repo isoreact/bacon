@@ -1,6 +1,6 @@
-import bacon from 'baconjs';
+import {later} from 'baconjs';
 
 // Simulated external data source
 export default function fetchV() {
-    return bacon.later(50, 3);
+    return later(50, 3);
 }
