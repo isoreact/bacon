@@ -106,15 +106,15 @@ exports[`renderToHtml(isomorphicComponent) <Connect /> simple isomorphic compone
 
 exports[`renderToHtml(isomorphicComponent) <Connect /> styled nested isomorphic component renders correctly 1`] = `
 <head>
-  <style data-styled="bLXHOZ gjNiSI" data-styled-version="4.2.0">
-    /* sc-component-id: StyledSection-sc-1e5fo1a-0 */
-    .bLXHOZ {
+  <style data-styled="fXyZxv clzntv" data-styled-version="4.2.0">
+    /* sc-component-id: StyledSection-ng6vb3-0 */
+    .fXyZxv {
       padding: 7px;
       background: #bbb;
     }
 
-    /* sc-component-id: StyledList-sc-1e5fo1a-1 */
-    .gjNiSI {
+    /* sc-component-id: StyledList-ng6vb3-1 */
+    .clzntv {
       margin: 7px;
       background: #666;
       color: #ddd;
@@ -124,8 +124,8 @@ exports[`renderToHtml(isomorphicComponent) <Connect /> styled nested isomorphic 
 
 <body>
   <div id="0123456789abcdef">
-    <section class="StyledSection-sc-1e5fo1a-0 bLXHOZ">
-      <ul class="StyledList-sc-1e5fo1a-1 gjNiSI">
+    <section class="StyledSection-ng6vb3-0 fXyZxv">
+      <ul class="StyledList-ng6vb3-1 clzntv">
         <li>27</li>
         <li>72</li>
         <li>
@@ -273,15 +273,15 @@ exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() simple isomorp
 
 exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() styled nested isomorphic component renders correctly 1`] = `
 <head>
-  <style data-styled="Duetr ceUwuZ" data-styled-version="4.2.0">
-    /* sc-component-id: StyledSection-xukvp3-0 */
-    .Duetr {
+  <style data-styled="jurjOT gHppZD" data-styled-version="4.2.0">
+    /* sc-component-id: StyledSection-xs7l9v-0 */
+    .jurjOT {
       padding: 7px;
       background: #bbb;
     }
 
-    /* sc-component-id: StyledList-xukvp3-1 */
-    .ceUwuZ {
+    /* sc-component-id: StyledList-xs7l9v-1 */
+    .gHppZD {
       margin: 7px;
       background: #666;
       color: #ddd;
@@ -291,8 +291,8 @@ exports[`renderToHtml(isomorphicComponent) useIsomorphicContext() styled nested 
 
 <body>
   <div id="0123456789abcdef">
-    <section class="StyledSection-xukvp3-0 Duetr">
-      <ul class="StyledList-xukvp3-1 ceUwuZ">
+    <section class="StyledSection-xs7l9v-0 jurjOT">
+      <ul class="StyledList-xs7l9v-1 gHppZD">
         <li>27</li>
         <li>72</li>
         <li>

@@ -1,19 +1,11 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import bacon from 'baconjs';
+import {Bus, Observable} from 'baconjs';
 
 import {IsomorphicContext, HYDRATION, SERVER} from './context';
 import {noImmediateStateOnHydrationError, noImmediateStateOnRenderError, noImmediateStateOnServerError} from './errors';
 
 class Connector extends React.Component {
-    static propTypes = {
-        createElement: propTypes.func.isRequired,
-        data$: propTypes.instanceOf(bacon.Observable).isRequired,
-        isEqual: propTypes.func,
-        name: propTypes.string.isRequired,
-        elementId: propTypes.string,
-    };
-
     static contextType = IsomorphicContext;
 
     static getDerivedStateFromProps(props, state) {
@@ -28,7 +20,7 @@ class Connector extends React.Component {
         super(props, context);
 
         this.state = {
-            bus: new bacon.Bus(),
+            bus: new Bus(),
         };
 
         if (this.context === SERVER) {
@@ -49,7 +41,7 @@ class Connector extends React.Component {
             // When the isomorphic component receives new props, it creates a new data$ stream.
             // When this happens, switch streams using flatMapLatest.
             const data$ = this.state.bus
-                .startWith(props.data$)
+                .toProperty(props.data$)
                 .skipDuplicates()
                 .flatMapLatest((stream$) => stream$)
                 .toProperty();
@@ -105,6 +97,16 @@ class Connector extends React.Component {
     }
 }
 
+if (process.env.NODE_ENV === 'development') {
+    Connector.propTypes = {
+        createElement: propTypes.func.isRequired,
+        data$: propTypes.instanceOf(Observable).isRequired,
+        isEqual: propTypes.func,
+        name: propTypes.string.isRequired,
+        elementId: propTypes.string,
+    };
+}
+
 export default function Connect({
     context: Context,
     isEqual,
@@ -122,14 +124,16 @@ export default function Connect({
     );
 }
 
-Connect.propTypes = {
+if (process.env.NODE_ENV === 'development') {
+    Connect.propTypes = {
 
-    /** React context for all instances of this component */
-    context: propTypes.object.isRequired,
+        /** React context for all instances of this component */
+        context: propTypes.object.isRequired,
 
-    /** If provided: Given two consecutive states, a and b, skip state b if isEqual(a, b). */
-    isEqual: propTypes.func,
+        /** If provided: Given two consecutive states, a and b, skip state b if isEqual(a, b). */
+        isEqual: propTypes.func,
 
-    /** A function that converts isomorphic component state into React elements */
-    children: propTypes.func.isRequired,
-};
+        /** A function that converts isomorphic component state into React elements */
+        children: propTypes.func.isRequired,
+    };
+}
