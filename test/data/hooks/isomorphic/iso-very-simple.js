@@ -1,5 +1,3 @@
-import propTypes from 'prop-types';
-
 import hydrate from '../../../../src/hydrate';
 import isomorphic from '../../../../src/isomorphic';
 
@@ -12,9 +10,6 @@ const isoVerySimple = {
     component: VerySimple,
     context: VerySimpleContext,
     getData,
-    propTypes: {
-        power: propTypes.number,
-    },
 };
 
 export const IsoVerySimple = isomorphic(isoVerySimple);

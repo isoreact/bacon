@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import bacon from 'baconjs';
+import {combineAsArray} from 'baconjs';
 import uuid from 'uuid/v1';
 import serialize from 'serialize-javascript';
 
@@ -70,17 +70,16 @@ export default async function renderToHtml(
         const keys = [...pendingKeys];
 
         // Wait for all of them to resolve.
-        await bacon
-            .combineAsArray(
-                keys.map((key) => (
-                    registeredStreams[key]
-                        .first()
-                        .doAction(({hydration: h}) => {
-                            hydration[key] = h;
-                            pendingKeys.delete(key);
-                        })
-                ))
-            )
+        await combineAsArray(
+            keys.map((key) => (
+                registeredStreams[key]
+                    .first()
+                    .doAction(({hydration: h}) => {
+                        hydration[key] = h;
+                        pendingKeys.delete(key);
+                    })
+            ))
+        )
             .firstToPromise();
 
         // Remove them from pendingKeys, which may have had more keys added while waiting.

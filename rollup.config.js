@@ -18,7 +18,7 @@ export default ['development', 'production'].map((environment) => ({
             'react-dom/server': 'ReactDOMServer',
         },
         file: [
-            'dist/isoreact-bacon1.cjs',
+            'dist/isoreact-bacon.cjs',
             environment === 'production' && 'min',
             'js',
         ]
@@ -28,35 +28,7 @@ export default ['development', 'production'].map((environment) => ({
     plugins: [
         sourceMaps(),
         nodeResolve(),
-        babel({
-            babelrc: false,
-            presets: [
-                [
-                    '@babel/preset-env',
-                    {
-                        modules: false,
-                        targets: {node: '10.0.0', browsers: ['last 2 versions']},
-                    },
-                ],
-                '@babel/preset-react',
-            ]
-                .filter(Boolean),
-            plugins: [
-                '@babel/plugin-proposal-object-rest-spread',
-                '@babel/plugin-proposal-class-properties',
-                [
-                    'babel-plugin-styled-components',
-                    {
-                        ssr: true,
-                        displayName: true,
-                        fileName: false,
-                    },
-                ],
-                environment === 'production' && 'babel-plugin-transform-react-remove-prop-types',
-            ]
-                .filter(Boolean),
-            exclude: 'node_modules/**',
-        }),
+        babel({runtimeHelpers: true}),
         commonjs(),
         replace({
             'process.env.NODE_ENV': `"${environment}"`,

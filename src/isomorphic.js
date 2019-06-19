@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import bacon from 'baconjs';
+import {constant, Error, later, mergeAll, never} from 'baconjs';
 
 import {IsomorphicContext, ServerContext, HydrationContext, SERVER, HYDRATION} from './context';
 import {SSR_TIMEOUT_ERROR} from './errors';
@@ -36,7 +36,6 @@ import Connect from './connect';
  * @param {React.Context} [isomorphicComponent.context]     - context to provide and consume the data stream
  * @param {getData}       isomorphicComponent.getData       - data stream creation function
  * @param {number}        [isomorphicComponent.timeout]     - the number of milliseconds to wait for the stream to emit its first value
- * @param {Object}        [isomorphicComponent.propTypes]   - propType validations
  * @returns {Function} the created isomorphic component
  */
 export default function isomorphic({
@@ -45,7 +44,6 @@ export default function isomorphic({
     context,
     getData,
     timeout,
-    propTypes, // eslint-disable-line react/forbid-foreign-prop-types
 }) {
     // When context isn't provided, inject the state directly into the component.
     const Context = context || React.createContext(null);
@@ -58,10 +56,9 @@ export default function isomorphic({
     return class Isomorphic extends React.Component {
         static __isomorphic_name__ = name; // eslint-disable-line camelcase
         static displayName = name;
-        static propTypes = propTypes;
 
         render() {
-            const {children, ...props} = this.props;
+            const {children, ...props} = this.props; // eslint-disable-line react/prop-types
 
             return (
                 <IsomorphicContext.Consumer>
@@ -83,34 +80,33 @@ export default function isomorphic({
                                             let immediateValue = null;
                                             let hasImmediateValue = false;
 
-                                            bacon
-                                                .mergeAll(
-                                                    stream$
-                                                        .first()
-                                                        .doAction(({state}) => {
-                                                            // Get the first value if it resolves synchronously
-                                                            if (immediate) {
-                                                                hasImmediateValue = true;
-                                                                immediateValue = state;
-                                                            }
-                                                        })
-                                                        .doAction(({data}) => {
-                                                            // If we're accumulating data and there's data to accumulate, accumulate it.
-                                                            if (onData && data) {
-                                                                onData(data);
-                                                            }
-                                                        })
-                                                        .doError((error) => {
-                                                            if (immediate) {
-                                                                onError(error);
-                                                            }
-                                                        }),
+                                            mergeAll(
+                                                stream$
+                                                    .first()
+                                                    .doAction(({state}) => {
+                                                        // Get the first value if it resolves synchronously
+                                                        if (immediate) {
+                                                            hasImmediateValue = true;
+                                                            immediateValue = state;
+                                                        }
+                                                    })
+                                                    .doAction(({data}) => {
+                                                        // If we're accumulating data and there's data to accumulate, accumulate it.
+                                                        if (onData && data) {
+                                                            onData(data);
+                                                        }
+                                                    })
+                                                    .doError((error) => {
+                                                        if (immediate) {
+                                                            onError(error);
+                                                        }
+                                                    }),
 
-                                                    // Insert an error into the stream after the timeout, if specified, has elapsed.
-                                                    timeout === undefined
-                                                        ? bacon.never()
-                                                        : bacon.later(timeout).flatMapLatest(() => new bacon.Error(SSR_TIMEOUT_ERROR))
-                                                )
+                                                // Insert an error into the stream after the timeout, if specified, has elapsed.
+                                                timeout === undefined
+                                                    ? never()
+                                                    : later(timeout, null).flatMapLatest(() => new Error(SSR_TIMEOUT_ERROR))
+                                            )
                                                 .firstToPromise()
                                                 .then(() => {
                                                     if (!hasImmediateValue) {
@@ -142,7 +138,7 @@ export default function isomorphic({
                                                 return (
                                                     <Context.Provider
                                                         value={{
-                                                            data$: bacon.constant(immediateValue),
+                                                            data$: constant(immediateValue),
                                                             name,
                                                         }}
                                                     >
