@@ -4,14 +4,12 @@ import useIsomorphicContext from '../../../../src/use-isomorphic-context';
 
 import VerySimpleContext from '../../context/very-simple-context';
 
-function VerySimple() {
+export default React.forwardRef(function VerySimple(props, ref) {
     const {x} = useIsomorphicContext(VerySimpleContext);
 
     return (
-        <section>
+        <section ref={ref}>
             {x}
         </section>
     );
-}
-
-export default VerySimple;
+});

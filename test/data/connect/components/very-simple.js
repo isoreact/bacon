@@ -4,12 +4,10 @@ import Connect from '../../../../src/connect';
 
 import VerySimpleContext from '../../context/very-simple-context';
 
-const VerySimple = () => (
-    <section>
+export default React.forwardRef((props, ref) => (
+    <section ref={ref}>
         <Connect context={VerySimpleContext}>
             {({x}) => x}
         </Connect>
     </section>
-);
-
-export default VerySimple;
+));
