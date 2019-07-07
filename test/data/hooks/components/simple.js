@@ -4,7 +4,7 @@ import useIsomorphicContext from '../../../../src/use-isomorphic-context';
 
 import SimpleContext from '../../context/simple-context';
 
-function Simple() {
+export default function Simple() {
     const state = useIsomorphicContext(SimpleContext);
 
     return (
@@ -13,5 +13,3 @@ function Simple() {
         </section>
     );
 }
-
-export default Simple;

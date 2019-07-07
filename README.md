@@ -374,6 +374,25 @@ export default function Profile() {
 }
 ```
 
+## Refs
+
+Refs work as expected. Any `ref` passed to an isomorphic component will be forwarded to the underlying component.
+
+```jsx harmony
+function SomeComponent({userId}) {
+    const profileRef = useRef(null);
+
+    return (
+        <IsoProfile
+            ref={profileRef} // ref forwarded to Profile
+            userId={userId}
+        />        
+    );
+}
+```
+
+The underlying component must be capable of taking a `ref`. Note: `Connect` is incapable of forwarding `ref`s.
+
 ## Support for styled-components
 
 The server-side rendering portion of the above example can be updated as follows:
