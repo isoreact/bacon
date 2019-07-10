@@ -1,11 +1,11 @@
 import {combineTemplate} from 'baconjs';
 
-export default function getData(props) {
-    const {power = 1} = props;
+export default function getData(props$) {
+    const power$ = props$.map(({power = 1}) => power);
 
     return combineTemplate({
         state: {
-            x: 5 ** power,
+            x: power$.map((power) => 5 ** power),
         },
     });
 }

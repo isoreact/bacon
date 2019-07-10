@@ -20,6 +20,7 @@ export default function hydrate(
         warnIfAlreadyHydrated = true,
     } = {}
 ) {
+    /* istanbul ignore next */
     if (typeof window === 'undefined') {
         console.warn('Cannot hydrate a component outside a browser.');
 
@@ -100,6 +101,8 @@ function hydrateElement(
 ) {
     const {__isomorphic_name__: name} = IsomorphicComponent;
 
+    // Debugging info
+    /* istanbul ignore next */
     if (process.env.NODE_ENV === 'development') {
         console.info(`Hydrating component "${name}"...`); // eslint-disable-line no-console
     }
@@ -126,6 +129,7 @@ function hydrateElement(
     }
 
     // Debugging info
+    /* istanbul ignore next */
     if (process.env.NODE_ENV === 'development') {
         console.info(`Isomorphic component "${name}" hydrated 💦 at`, element); // eslint-disable-line no-console
     }

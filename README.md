@@ -116,16 +116,16 @@ export default isomorphic({
     name: 'iso-profile',
     component: Profile,
     context: profileContext,
-    getData: (props, hydration, immediate) => {
-        const {userId} = props;
+    getData: (props$, hydration, immediate) => {
+        const userId$ = props$.map(({userId}) => userId);
 
         const name$ = hydration
             ? constant({name: hydration.name})
-            : fetchName(userId);
+            : userId$.flatMapLatest(fetchName);
 
         const photo$ = hydration
             ? constant({photo: hydration.photo})
-            : fetchPhoto(userId);
+            : userId$.flatMapLatest(fetchPhoto);
 
         return combineTemplate({
             // React component rendered with this state as its props
@@ -155,7 +155,7 @@ export default isomorphic({
 });
 ```
 
-The general contract of `getData(props, hydration, immediate)` is:
+The general contract of `getData(props$, hydration, immediate)` is:
 
 * Return an observable that emits objects of the form `{state, hydration, data}` where both `state` and `hydration` are
   objects and `data` is any additional data you want to accumulate during server-side rendering.
@@ -199,13 +199,14 @@ async function renderUserProfilesPage(userIds) {
 }
 ```
 
-When `renderToHtml` is called, it will call each isomorphic components' `getData` function, passing in the isomorphic
-component's props (in this case, `userId`). When the stream returned by `getData` produces its first event (an object
-consisting of `state` to inject into the React component and `hydration` to attach to the HTML page), the isomorphic
-component's React component will be rendered with the `state` as its `props` and the `hydration` data will be rendered
-adjacent to it in the HTML page. The `data` property of the event will be passed to the `onData` function specified in
-`renderToHtml`, if specified at all. It is up to the `onData` function to accumulate `data` objects as it sees fit,
-bearing in mind that `onData` is called in render order, which is defined by `ReactDOM.renderToString`.
+When `renderToHtml` is called, it will call each isomorphic components' `getData` function, passing in a Bacon.js
+`Property` that emits the isomorphic component's props (in this case, `userId`) every time it's rendered. When the
+stream returned by `getData` produces its first event (an object consisting of `state` to inject into the React
+component and `hydration` to attach to the HTML page), the isomorphic component's React component will be rendered with
+the `state` as its `props` and the `hydration` data will be rendered adjacent to it in the HTML page. The `data`
+property of the event will be passed to the `onData` function specified in `renderToHtml`, if specified at all. It is up
+to the `onData` function to accumulate `data` objects as it sees fit, bearing in mind that `onData` is called in render
+order, which is defined by `ReactDOM.renderToString`.
 
 Somewhere on the client:
 
@@ -218,7 +219,7 @@ hydrate(IsoProfile);
 ```
 
 When `hydrate` is called, it finds all the server-side rendered instances of the isomorphic component in the DOM, reads
-their attached `props` and `hydration` data, then calls `getData(props, hydration, immediate)`, expecting the client to
+their attached `props` and `hydration` data, then calls `getData(props$, hydration, immediate)`, expecting the client to
 render the profiles synchronously, without having to load data from APIs.
 
 Bear in mind that isomorphic components are just React components, so you can use them directly in JSX and you don't
@@ -268,16 +269,16 @@ import fetchPhoto from './streams/fetch-photo';
 export default isomorphic({
     name: 'iso-profile',
     component: Profile,
-    getData: (props, hydration, immediate) => {
-        const {userId} = props;
+    getData: (props$, hydration, immediate) => {
+        const userId$ = props$.map(({userId}) => userId);
 
         const name$ = hydration
             ? constant({name: hydration.name})
-            : fetchName(userId);
+            : userId$.flatMapLatest(fetchName);
 
         const photo$ = hydration
             ? constant({photo: hydration.photo})
-            : fetchPhoto(userId);
+            : userId$.flatMapLatest(fetchPhoto);
 
         return combineTemplate({
             // React component rendered with this state as its props
