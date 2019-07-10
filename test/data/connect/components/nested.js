@@ -3,7 +3,7 @@ import React from 'react';
 import Connect from '../../../../src/connect';
 
 import NestedContext from '../../context/nested-context';
-import {IsoSimple} from '../isomorphic/iso-simple';
+import IsoSimple from '../isomorphic/iso-simple';
 
 const Nested = () => (
     <section>

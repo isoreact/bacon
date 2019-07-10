@@ -1,9 +1,9 @@
-import {combineTemplate, constant} from 'baconjs';
+import {combineAsArray, combineTemplate, constant} from 'baconjs';
 import fetchV from '../streams/fetch-v';
 import fetchW from '../streams/fetch-w';
 
-export default function getData(props, hydration) {
-    const {coefficient = 1} = props;
+export default function getData(props$, hydration) {
+    const coefficient$ = props$.map(({coefficient = 1}) => coefficient);
 
     // Get {v, w} from hydration if hydrating, or from an external data source if not hydrating.
     const v$ = hydration
@@ -15,8 +15,8 @@ export default function getData(props, hydration) {
         : fetchW();
 
     // Calculate {a, b} based on v (from external data source) and coefficient (from props)
-    const a$ = v$.map((v) => coefficient * v);
-    const b$ = w$.map((w) => coefficient * w);
+    const a$ = combineAsArray(v$, coefficient$).map(([v, coefficient]) => coefficient * v);
+    const b$ = combineAsArray(w$, coefficient$).map(([w, coefficient]) => coefficient * w);
 
     return combineTemplate({
         state: {

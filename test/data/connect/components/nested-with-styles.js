@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Connect from '../../../../src/connect';
 
 import NestedWithStylesContext from '../../context/nested-with-styles-context';
-import {IsoSimple} from '../isomorphic/iso-simple';
+import IsoSimple from '../isomorphic/iso-simple';
 
 const StyledSection = styled.section`
     padding: 7px;

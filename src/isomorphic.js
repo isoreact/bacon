@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import {constant, Error, later, mergeAll, never} from 'baconjs';
+import propTypes from 'prop-types';
+import {Bus, constant, Error, later, mergeAll, never} from 'baconjs';
 
 import {IsomorphicContext, ServerContext, HydrationContext, SERVER, HYDRATION} from './context';
 import {SSR_TIMEOUT_ERROR} from './errors';
@@ -61,131 +62,196 @@ export default function isomorphic({
         Component.displayName = C.displayName || C.name;
     }
 
-    const Isomorphic = React.forwardRef(({children, ...props}, ref) => ( // eslint-disable-line react/prop-types
-        <IsomorphicContext.Consumer>
-            {(phase) => {
-                switch (phase) {
-                    case SERVER: // Server-side rendering
-                        return (
-                            <ServerContext.Consumer>
-                                {({getStream, registerStream, onError, onData}) => {
-                                    const key = keyFor(name, props);
-                                    let stream$ = getStream(key);
+    class Isomorphic extends React.Component { // eslint-disable-line react/no-unsafe
+        static propTypes = {
+            innerRef: propTypes.oneOfType([propTypes.object, propTypes.func]),
+        };
 
-                                    if (!stream$) {
-                                        stream$ = getData(props, undefined, false).first();
-                                        registerStream(key, stream$);
-                                    }
+        state = {
+            propsBus: new Bus(),
+        };
 
-                                    let immediate = true;
-                                    let immediateValue = null;
-                                    let hasImmediateValue = false;
+        static getDerivedStateFromProps({innerRef, ...props}, state) {
+            state.propsBus.push(props);
 
-                                    mergeAll(
-                                        stream$
-                                            .first()
-                                            .doAction(({state}) => {
-                                                // Get the first value if it resolves synchronously
-                                                if (immediate) {
-                                                    hasImmediateValue = true;
-                                                    immediateValue = state;
-                                                }
-                                            })
-                                            .doAction(({data}) => {
-                                                // If we're accumulating data and there's data to accumulate, accumulate it.
-                                                if (onData && data) {
-                                                    onData(data);
-                                                }
-                                            })
-                                            .doError((error) => {
-                                                if (immediate) {
-                                                    onError(error);
-                                                }
-                                            }),
+            return null;
+        }
 
-                                        // Insert an error into the stream after the timeout, if specified, has elapsed.
-                                        timeout === undefined
-                                            ? never()
-                                            : later(timeout, null).flatMapLatest(() => new Error(SSR_TIMEOUT_ERROR))
-                                    )
-                                        .firstToPromise()
-                                        .then(() => {
-                                            if (!hasImmediateValue) {
-                                                // When the stream resolves later, continue walking the tree.
-                                                ReactDOMServer.renderToStaticMarkup(
-                                                    <IsomorphicContext.Provider value={SERVER}>
-                                                        <ServerContext.Provider value={{getStream, registerStream}}>
-                                                            <Context.Provider
-                                                                value={{
-                                                                    data$: stream$.map(({state}) => state),
-                                                                    name,
-                                                                }}
-                                                            >
-                                                                <Component ref={ref} />
-                                                            </Context.Provider>
-                                                        </ServerContext.Provider>
-                                                    </IsomorphicContext.Provider>
-                                                );
+        shouldComponentUpdate(nextProps) {
+            // Only re-render if the ref has changed.
+            return nextProps.innerRef !== this.props.innerRef;
+        }
+
+        props$ = constant(this.props).map(({innerRef, ...props}) => props).concat(this.state.propsBus); // eslint-disable-line newline-per-chained-call
+        hydration = null;
+        data$ = null;
+        isHydrated = false;
+
+        render() {
+            const {innerRef, ...props} = this.props;
+
+            return (
+                <IsomorphicContext.Consumer>
+                    {(phase) => {
+                        switch (phase) {
+                            case SERVER: // Server-side rendering
+                                return (
+                                    <ServerContext.Consumer>
+                                        {({getStream, registerStream, onError, onData}) => {
+                                            const key = keyFor(name, props);
+                                            let stream$ = getStream(key);
+
+                                            if (!stream$) {
+                                                stream$ = getData(this.props$, undefined, false).first();
+                                                registerStream(key, stream$);
                                             }
-                                        })
-                                        .catch((error) => {
-                                            onError(error);
-                                        });
 
-                                    immediate = false;
+                                            let immediate = true;
+                                            let immediateValue = null;
+                                            let hasImmediateValue = false;
 
-                                    // If the stream is resolved, render this component.
-                                    if (hasImmediateValue) {
-                                        return (
-                                            <Context.Provider
-                                                value={{
-                                                    data$: constant(immediateValue),
-                                                    name,
-                                                }}
-                                            >
-                                                <Component ref={ref} />
-                                            </Context.Provider>
-                                        );
-                                    } else {
-                                        // We don't have an immediate value, so don't render any further.
-                                        return null;
-                                    }
-                                }}
-                            </ServerContext.Consumer>
-                        );
+                                            mergeAll(
+                                                stream$
+                                                    .first()
+                                                    .doAction(({state}) => {
+                                                        // Get the first value if it resolves synchronously
+                                                        if (immediate) {
+                                                            hasImmediateValue = true;
+                                                            immediateValue = state;
+                                                        }
+                                                    })
+                                                    .doAction(({data}) => {
+                                                        // If we're accumulating data and there's data to accumulate, accumulate it.
+                                                        if (onData && data) {
+                                                            onData(data);
+                                                        }
+                                                    })
+                                                    .doError((error) => {
+                                                        if (immediate) {
+                                                            onError(error);
+                                                        }
+                                                    }),
 
-                    case HYDRATION: // Hydrating or continuing to render after hydration
-                        return (
-                            <HydrationContext.Consumer>
-                                {(getHydration) => {
-                                    const {hydration, elementId} = getHydration ? getHydration(name, props) : {};
-                                    const data$ = getData(props, hydration, true).map(({state}) => state);
+                                                // Insert an error into the stream after the timeout, if specified, has elapsed.
+                                                timeout === undefined
+                                                    ? never()
+                                                    : later(timeout, null).flatMapLatest(() => new Error(SSR_TIMEOUT_ERROR))
+                                            )
+                                                .firstToPromise()
+                                                .then(() => {
+                                                    if (!hasImmediateValue) {
+                                                        // Pass the state object to subscribers (Connect and useIsomorphicContext)
+                                                        const data$ = stream$.map(({state}) => state);
 
+                                                        // When the stream resolves later, continue walking the tree.
+                                                        ReactDOMServer.renderToStaticMarkup(
+                                                            <IsomorphicContext.Provider value={SERVER}>
+                                                                <ServerContext.Provider value={{getStream, registerStream}}>
+                                                                    <Context.Provider
+                                                                        value={{
+                                                                            data$,
+                                                                            name,
+                                                                        }}
+                                                                    >
+                                                                        <Component ref={innerRef} />
+                                                                    </Context.Provider>
+                                                                </ServerContext.Provider>
+                                                            </IsomorphicContext.Provider>
+                                                        );
+                                                    }
+                                                })
+                                                .catch((error) => {
+                                                    onError(error);
+                                                });
+
+                                            immediate = false;
+
+                                            // If the stream is resolved, render this component.
+                                            if (hasImmediateValue) {
+                                                return (
+                                                    <Context.Provider
+                                                        value={{
+                                                            data$: constant(immediateValue),
+                                                            name,
+                                                        }}
+                                                    >
+                                                        <Component ref={innerRef} />
+                                                    </Context.Provider>
+                                                );
+                                            } else {
+                                                // We don't have an immediate value, so don't render any further.
+                                                return null;
+                                            }
+                                        }}
+                                    </ServerContext.Consumer>
+                                );
+
+                            case HYDRATION: // Hydrating or continuing to render after hydration
+                                if (!this.isHydrated) {
                                     return (
-                                        <Context.Provider value={{data$, name, elementId}}>
-                                            <Component ref={ref} />
-                                        </Context.Provider>
+                                        <HydrationContext.Consumer>
+                                            {(getHydration) => {
+                                                const {hydration, elementId} = getHydration ? getHydration(name, props) : {};
+
+                                                if (!this.data$) {
+                                                    this.data$ = getData(
+                                                        this.props$,
+                                                        hydration,
+                                                        true
+                                                    )
+                                                        // Pass the state object to subscribers (Connect and useIsomorphicContext)
+                                                        .map(({state}) => state);
+                                                }
+
+                                                return (
+                                                    <Context.Provider
+                                                        value={{
+                                                            data$: this.data$,
+                                                            name,
+                                                            elementId,
+                                                        }}
+                                                    >
+                                                        <Component ref={innerRef} />
+                                                    </Context.Provider>
+                                                );
+                                            }}
+                                        </HydrationContext.Consumer>
                                     );
-                                }}
-                            </HydrationContext.Consumer>
-                        );
+                                }
 
-                    default: { // Pure client-side rendering
-                        const data$ = getData(props, undefined, true).map(({state}) => state);
+                            default: { // Pure client-side rendering or fallthrough from HYDRATION because the component is already hydrated
+                                if (!this.data$) {
+                                    this.data$ = getData(
+                                        this.props$,
+                                        null,
+                                        true
+                                    )
+                                        // Pass the state object to subscribers (Connect and useIsomorphicContext)
+                                        .map(({state}) => state);
+                                }
 
-                        return (
-                            <Context.Provider value={{data$, name}}>
-                                <Component ref={ref} />
-                            </Context.Provider>
-                        );
-                    }
-                }
-            }}
-        </IsomorphicContext.Consumer>
-    ));
+                                return (
+                                    <Context.Provider
+                                        value={{
+                                            data$: this.data$,
+                                            name,
+                                        }}
+                                    >
+                                        <Component ref={innerRef} />
+                                    </Context.Provider>
+                                );
+                            }
+                        }
+                    }}
+                </IsomorphicContext.Consumer>
+            );
+        }
+    }
 
-    Isomorphic.displayName = name;
-    Isomorphic.__isomorphic_name__ = name;
+    const RefForwardedIsomorphic = React.forwardRef((props, ref) => <Isomorphic {...props} innerRef={ref} />);
 
-    return Isomorphic;
+    RefForwardedIsomorphic.displayName = name;
+    RefForwardedIsomorphic.__isomorphic_name__ = name;
+
+    return RefForwardedIsomorphic;
 }

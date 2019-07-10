@@ -4,14 +4,20 @@ import ReactDOM from 'react-dom';
 import hydrate from '../src/hydrate';
 import keyFor from '../src/key-for';
 
-import {hydrateSimple as hydrateSimpleConnected} from './data/connect/isomorphic/iso-simple';
-import {hydrateNested as hydrateNestedConnected} from './data/connect/isomorphic/iso-nested';
-import {hydrateVerySimple as hydrateVerySimpleConnected} from './data/connect/isomorphic/iso-very-simple';
-import {hydrateNestedWithStyles as hydrateNestedWithStylesConnected} from './data/connect/isomorphic/iso-nested-with-styles';
-import {hydrateSimple as hydrateSimpleHooked} from './data/hooks/isomorphic/iso-simple';
-import {hydrateNested as hydrateNestedHooked} from './data/hooks/isomorphic/iso-nested';
-import {hydrateVerySimple as hydrateVerySimpleHooked} from './data/hooks/isomorphic/iso-very-simple';
-import {hydrateNestedWithStyles as hydrateNestedWithStylesHooked} from './data/hooks/isomorphic/iso-nested-with-styles';
+import IsoSimpleConnected from './data/connect/isomorphic/iso-simple';
+import IsoNestedConnected from './data/connect/isomorphic/iso-nested';
+import IsoVerySimpleConnected from './data/connect/isomorphic/iso-very-simple';
+import IsoNestedWithStylesConnected from './data/connect/isomorphic/iso-nested-with-styles';
+
+import IsoSimpleHooked from './data/hooks/isomorphic/iso-simple';
+import IsoNestedHooked from './data/hooks/isomorphic/iso-nested';
+import IsoVerySimpleHooked from './data/hooks/isomorphic/iso-very-simple';
+import IsoNestedWithStylesHooked from './data/hooks/isomorphic/iso-nested-with-styles';
+
+import IsoSimpleNoContext from './data/no-context/isomorphic/iso-simple';
+import IsoNestedNoContext from './data/no-context/isomorphic/iso-nested';
+import IsoVerySimpleNoContext from './data/no-context/isomorphic/iso-very-simple';
+import IsoNestedWithStylesNoContext from './data/no-context/isomorphic/iso-nested-with-styles';
 
 import * as fetchBaseValue from './data/streams/fetch-base-value';
 import * as fetchV from './data/streams/fetch-v';
@@ -22,26 +28,34 @@ describe('hydrate(isomorphicComponent, options)', () => {
         {
             name: '<Connect />',
             suffix: '--connected',
-            hydrateSimple: hydrateSimpleConnected,
-            hydrateNested: hydrateNestedConnected,
-            hydrateVerySimple: hydrateVerySimpleConnected,
-            hydrateNestedWithStyles: hydrateNestedWithStylesConnected,
+            IsoSimple: IsoSimpleConnected,
+            IsoNested: IsoNestedConnected,
+            IsoVerySimple: IsoVerySimpleConnected,
+            IsoNestedWithStyles: IsoNestedWithStylesConnected,
         },
         {
             name: 'useIsomorphicContext()',
             suffix: '--hooked',
-            hydrateSimple: hydrateSimpleHooked,
-            hydrateNested: hydrateNestedHooked,
-            hydrateVerySimple: hydrateVerySimpleHooked,
-            hydrateNestedWithStyles: hydrateNestedWithStylesHooked,
+            IsoSimple: IsoSimpleHooked,
+            IsoNested: IsoNestedHooked,
+            IsoVerySimple: IsoVerySimpleHooked,
+            IsoNestedWithStyles: IsoNestedWithStylesHooked,
+        },
+        {
+            name: 'No context',
+            suffix: '--no-context',
+            IsoSimple: IsoSimpleNoContext,
+            IsoNested: IsoNestedNoContext,
+            IsoVerySimple: IsoVerySimpleNoContext,
+            IsoNestedWithStyles: IsoNestedWithStylesNoContext,
         },
     ].forEach(({
         name,
         suffix,
-        hydrateSimple,
-        hydrateNested,
-        hydrateVerySimple,
-        hydrateNestedWithStyles,
+        IsoSimple,
+        IsoNested,
+        IsoVerySimple,
+        IsoNestedWithStyles,
     }) => {
         describe(name, () => {
             let originalConsoleInfo;
@@ -63,7 +77,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                     fetchBaseValueSpy = jest.spyOn(fetchBaseValue, 'default');
                     document.body.innerHTML = html;
                     eval(document.querySelector('script').innerHTML);
-                    hydrateSimple();
+                    hydrate(IsoSimple);
                 });
 
                 afterEach(() => {
@@ -102,7 +116,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                     fetchWSpy = jest.spyOn(fetchW, 'default');
                     document.body.innerHTML = html;
                     eval(document.querySelector('script').innerHTML);
-                    hydrateNested();
+                    hydrate(IsoNested);
                 });
 
                 afterEach(() => {
@@ -145,7 +159,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                     document.head.innerHTML = head;
                     document.body.innerHTML = body;
                     eval(document.querySelector('script').innerHTML);
-                    hydrateNestedWithStyles();
+                    hydrate(IsoNestedWithStyles);
                 });
 
                 afterEach(() => {
@@ -193,7 +207,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                     consoleWarnSpy = jest.spyOn(console, 'warn');
                     document.body.innerHTML = html;
                     eval(document.querySelector('script').innerHTML);
-                    hydrateSimple();
+                    hydrate(IsoSimple);
                 });
 
                 afterEach(() => {
@@ -207,7 +221,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
 
                 test('it complains that subscribers have to wait for the observable before rendering', () => {
                     expect(consoleWarnSpy.mock.calls.slice(-1)[0][0]).toBe(
-                        `Cannot hydrate isomorphic component "iso-simple${suffix}" at DOM node "#0123456789abcdef" because the Observable returned by its getData(props, hydration) function does not produce an event immediately upon subscription. To avoid this error, ensure getData(props, hydration) returns a Bacon.js Property which produces an event immediately when the hydration object is provided.`
+                        `Cannot hydrate isomorphic component "iso-simple${suffix}" at DOM node "#0123456789abcdef" because the Observable returned by its getData(props$, hydration, immediate) function does not produce an event immediately upon subscription. To avoid this error, ensure getData(props$, hydration, immediate) returns a Bacon.js Property which produces an event immediately when the hydration object is provided.`
                     );
                 });
             });
@@ -218,7 +232,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                 beforeEach(() => {
                     document.body.innerHTML = html;
                     eval(document.querySelector('script').innerHTML);
-                    hydrateVerySimple();
+                    hydrate(IsoVerySimple);
                 });
 
                 afterEach(() => {
@@ -241,7 +255,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                         originalConsoleWarn = console.warn;
                         console.warn = () => {};
                         consoleWarnSpy = jest.spyOn(console, 'warn');
-                        hydrateVerySimple({warnIfNotFound: true});
+                        hydrate(IsoVerySimple, {warnIfNotFound: true});
                     });
 
                     afterEach(() => {
@@ -271,7 +285,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                         originalConsoleWarn = console.warn;
                         console.warn = () => {};
                         consoleWarnSpy = jest.spyOn(console, 'warn');
-                        hydrateVerySimple();
+                        hydrate(IsoVerySimple);
                     });
 
                     afterEach(() => {
@@ -302,7 +316,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                         consoleWarnSpy = jest.spyOn(console, 'warn');
                         document.body.innerHTML = html;
                         eval(document.querySelector('script').innerHTML);
-                        hydrateVerySimple({warnIfNotFound: true});
+                        hydrate(IsoVerySimple, {warnIfNotFound: true});
                     });
 
                     afterEach(() => {
@@ -335,7 +349,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                         consoleWarnSpy = jest.spyOn(console, 'warn');
                         document.body.innerHTML = html;
                         eval(document.querySelector('script').innerHTML);
-                        hydrateVerySimple();
+                        hydrate(IsoVerySimple);
                     });
 
                     afterEach(() => {
@@ -367,7 +381,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                         document.body.innerHTML = html;
                         eval(document.querySelector('script').innerHTML);
                         window.__ISO_DATA__[`iso-simple${suffix}`].hydrated = true;
-                        hydrateSimple();
+                        hydrate(IsoSimple);
                     });
 
                     afterEach(() => {
@@ -403,7 +417,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                         document.body.innerHTML = html;
                         eval(document.querySelector('script').innerHTML);
                         window.__ISO_DATA__[`iso-simple${suffix}`].hydrated = true;
-                        hydrateSimple({warnIfAlreadyHydrated: false});
+                        hydrate(IsoSimple, {warnIfAlreadyHydrated: false});
                     });
 
                     afterEach(() => {
@@ -436,7 +450,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                     document.body.innerHTML = html;
                     eval(document.querySelector('script').innerHTML);
                     window.__ISO_DATA__[`iso-simple${suffix}`]['0123456789abcdef'].hydrated = true;
-                    hydrateSimple();
+                    hydrate(IsoSimple);
                 });
 
                 afterEach(() => {
@@ -471,7 +485,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                     consoleErrorSpy = jest.spyOn(console, 'error');
                     document.body.innerHTML = html;
                     eval(document.querySelector('script').innerHTML);
-                    hydrateSimple();
+                    hydrate(IsoSimple);
                 });
 
                 afterEach(() => {
@@ -527,7 +541,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                 });
             });
 
-            describe('hydrateElement throws an error', () => {
+            describe('hydrate(Element) throws an error', () => {
                 const html = `<div id="0123456789abcdef"><section>625</section></div><script type="text/javascript">Object.assign(["__ISO_DATA__","iso-simple${suffix}","0123456789abcdef"].reduce(function(a,b){return a[b]=a[b]||{};},window),{"props":{"power":4},"hydration":{"${keyFor(`iso-simple${suffix}`, {power: 4})}":{"baseValue":5}}});</script>`;
                 let originalConsoleError;
                 let consoleErrorSpy;
@@ -548,7 +562,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                     document.body.innerHTML = html;
                     eval(document.querySelector('script').innerHTML);
                     try {
-                        hydrateSimple();
+                        hydrate(IsoSimple);
                     } catch (e) {
                         error = e;
                     }
