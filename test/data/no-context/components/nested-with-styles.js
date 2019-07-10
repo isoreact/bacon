@@ -1,9 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import useIsomorphicContext from '../../../../src/use-isomorphic-context';
-
-import NestedWithStylesContext from '../../context/nested-with-styles-context';
 import IsoSimple from '../isomorphic/iso-simple';
 
 const StyledSection = styled.section`
@@ -18,9 +15,7 @@ const StyledList = styled.ul`
 `;
 
 // Not really nested
-export default function NestedWithStyles() {
-    const {a, b} = useIsomorphicContext(NestedWithStylesContext);
-
+export default function NestedWithStyles({a, b}) { // eslint-disable-line react/prop-types
     return (
         <StyledSection>
             <StyledList>

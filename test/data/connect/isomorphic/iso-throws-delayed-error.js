@@ -1,19 +1,12 @@
-import hydrate from '../../../../src/hydrate';
 import isomorphic from '../../../../src/isomorphic';
 
 import ThrowsErrorContext from '../../context/throws-error-context';
 import getData from '../../iso-streams/throws-delayed-error';
 import ThrowsError from '../components/throws-error';
 
-const isoThrowsDelayedError = {
+export default isomorphic({
     name: 'iso-throws-delayed-error--connected',
     component: ThrowsError,
     context: ThrowsErrorContext,
     getData,
-};
-
-export const IsoThrowsDelayedError = isomorphic(isoThrowsDelayedError);
-
-export function hydrateThrowsDelayedError(options) {
-    hydrate(IsoThrowsDelayedError, options);
-}
+});

@@ -1,5 +1,4 @@
 import {useContext, useLayoutEffect, useRef, useState} from 'react';
-import {Bus} from 'baconjs';
 
 import {IsomorphicContext, HYDRATION, SERVER} from './context';
 import {noImmediateStateOnHydrationError, noImmediateStateOnRenderError, noImmediateStateOnServerError} from './errors';
@@ -33,18 +32,6 @@ export default function useIsomorphicContext(context, isEqual) {
         const {data$, name, elementId} = useContext(context);
         const subscription = useRef(null);
 
-        // data$ stream switching
-        const [bus] = useState(() => new Bus());
-        const [switchedData$] = useState(() => (
-            bus
-                .toProperty(data$) // this needs to be synchronous, which rules out startsWith as of Bacon v2
-                .skipDuplicates()
-                .flatMapLatest((stream$) => stream$)
-                .toProperty()      // required by older versions of Bacon to keep this a Property
-        ));
-
-        bus.push(data$); // switch streams
-
         let immediateState = null;
 
         const observer = useRef((value) => {
@@ -54,8 +41,8 @@ export default function useIsomorphicContext(context, isEqual) {
         const [state, setState] = useState(() => {
             subscription.current = (
                 isEqual
-                    ? switchedData$.skipDuplicates(isEqual)
-                    : switchedData$
+                    ? data$.skipDuplicates(isEqual)
+                    : data$
             )
                 .onValue((value) => {
                     observer.current(value);

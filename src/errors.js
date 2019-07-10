@@ -7,8 +7,8 @@ export function noImmediateStateOnServerError(name) {
 export function noImmediateStateOnHydrationError(name, elementId) {
     return (
         `Cannot hydrate isomorphic component "${name}" at DOM node "#${elementId}" because the Observable`
-        + ' returned by its getData(props, hydration) function does not produce an event immediately upon subscription.'
-        + ' To avoid this error, ensure getData(props, hydration) returns a Bacon.js Property which produces an event'
+        + ' returned by its getData(props$, hydration, immediate) function does not produce an event immediately upon subscription.'
+        + ' To avoid this error, ensure getData(props$, hydration, immediate) returns a Bacon.js Property which produces an event'
         + ' immediately when the hydration object is provided.'
     );
 }
@@ -16,7 +16,7 @@ export function noImmediateStateOnHydrationError(name, elementId) {
 export function noImmediateStateOnRenderError(name) {
     return (
         `Isomorphic component "${name}" is being rendered client-side, but the Observable returned by its`
-        + ' getData(props, hydration) function does not produce an event immediately upon subscription. To avoid this'
-        + ' error, ensure getData(props, hydration) returns a Bacon.js Property which produces an event immediately.'
+        + ' getData(prop$s, hydration, immediate) function does not produce an event immediately upon subscription. To avoid this'
+        + ' error, ensure getData(props$, hydration, immediate) returns a Bacon.js Property which produces an event immediately.'
     );
 }

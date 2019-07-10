@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Connect from '../.././../../src/connect';
+import Connect from '../../../../src/connect';
 
 import SimpleContext from '../../context/simple-context';
 
