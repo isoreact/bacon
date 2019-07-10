@@ -155,6 +155,161 @@ exports[`renderToHtml(isomorphicComponent) <Connect /> styled nested isomorphic 
 </body>
 `;
 
+exports[`renderToHtml(isomorphicComponent) No context nested isomorphic component renders correctly 1`] = `
+<head></head>
+
+<body>
+  <div id="0123456789abcdef">
+    <section>
+      <ul>
+        <li>27</li>
+        <li>72</li>
+        <li>
+          <section>625</section>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-nested--no-context", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "coefficient": 9
+      },
+      "hydration": {
+        "iso-nested--no-context--27152bfa9d152695b053e71d6ee08263979ed379d64fa16bfd8efdbf85ee0ffa": {
+          "v": 3,
+          "w": 8
+        },
+        "iso-simple--no-context--f042b037451958bdc45147be8b9d937045a13c3523f59ba3514bebb4db43730c": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) No context non-isomorphic component with mount point className renders as a regular element 1`] = `
+<head></head>
+
+<body>
+  <div>
+    <div data-reactroot="">Hello ;)</div>
+  </div>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) No context non-isomorphic component without mount point className renders as a regular element 1`] = `
+<head></head>
+
+<body>
+  <div class="mount-point">
+    <div data-reactroot="">Hello ;)</div>
+  </div>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) No context simple isomorphic component with mount point className renders correctly 1`] = `
+<head></head>
+
+<body>
+  <div id="0123456789abcdef" class="mount-point">
+    <section>625</section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-simple--no-context", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "power": 4
+      },
+      "hydration": {
+        "iso-simple--no-context--f042b037451958bdc45147be8b9d937045a13c3523f59ba3514bebb4db43730c": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) No context simple isomorphic component without mount point className renders correctly 1`] = `
+<head></head>
+
+<body>
+  <div id="0123456789abcdef">
+    <section>625</section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-simple--no-context", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "power": 4
+      },
+      "hydration": {
+        "iso-simple--no-context--f042b037451958bdc45147be8b9d937045a13c3523f59ba3514bebb4db43730c": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
+exports[`renderToHtml(isomorphicComponent) No context styled nested isomorphic component renders correctly 1`] = `
+<head>
+  <style data-styled="goFaQb XsZKR" data-styled-version="4.2.0">
+    /* sc-component-id: StyledSection-sc-1a9o4hs-0 */
+    .goFaQb {
+      padding: 7px;
+      background: #bbb;
+    }
+
+    /* sc-component-id: StyledList-sc-1a9o4hs-1 */
+    .XsZKR {
+      margin: 7px;
+      background: #666;
+      color: #ddd;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="0123456789abcdef">
+    <section class="StyledSection-sc-1a9o4hs-0 goFaQb">
+      <ul class="StyledList-sc-1a9o4hs-1 XsZKR">
+        <li>27</li>
+        <li>72</li>
+        <li>
+          <section>625</section>
+        </li>
+      </ul>
+    </section>
+  </div>
+  <script type="text/javascript">
+    Object.assign(["__ISO_DATA__", "iso-nested-with-styles--no-context", "0123456789abcdef"].reduce(function(a, b) {
+      return a[b] = a[b] || {};
+    }, window), {
+      "props": {
+        "coefficient": 9
+      },
+      "hydration": {
+        "iso-nested-with-styles--no-context--27152bfa9d152695b053e71d6ee08263979ed379d64fa16bfd8efdbf85ee0ffa": {
+          "v": 3,
+          "w": 8
+        },
+        "iso-simple--no-context--f042b037451958bdc45147be8b9d937045a13c3523f59ba3514bebb4db43730c": {
+          "baseValue": 5
+        }
+      }
+    });
+  </script>
+</body>
+`;
+
 exports[`renderToHtml(isomorphicComponent) onData child overrides parent; last sibling wins accumulates the expected data 1`] = `
 Object {
   "maxAge": 60,

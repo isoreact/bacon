@@ -4,15 +4,19 @@ import {__DO_NOT_USE_OR_YOU_WILL_BE_HAUNTED_BY_SPOOKY_GHOSTS} from 'styled-compo
 import renderToHtml from '../src/render-to-html';
 import StyledComponentsServerRenderer from '../src/styled-components-server-renderer';
 
-import {IsoSimple as IsoSimpleConnected} from './data/connect/isomorphic/iso-simple';
-import {IsoNested as IsoNestedConnected} from './data/connect/isomorphic/iso-nested';
-import {IsoNestedWithStyles as IsoNestedWithStylesConnected} from './data/connect/isomorphic/iso-nested-with-styles';
-import {IsoThrowsDelayedError} from './data/connect/isomorphic/iso-throws-delayed-error';
-import {IsoThrowsImmediateError} from './data/connect/isomorphic/iso-throws-immediate-error';
+import IsoSimpleConnected from './data/connect/isomorphic/iso-simple';
+import IsoNestedConnected from './data/connect/isomorphic/iso-nested';
+import IsoNestedWithStylesConnected from './data/connect/isomorphic/iso-nested-with-styles';
+import IsoThrowsDelayedError from './data/connect/isomorphic/iso-throws-delayed-error';
+import IsoThrowsImmediateError from './data/connect/isomorphic/iso-throws-immediate-error';
 
-import {IsoSimple as IsoSimpleHooked} from './data/hooks/isomorphic/iso-simple';
-import {IsoNested as IsoNestedHooked} from './data/hooks/isomorphic/iso-nested';
-import {IsoNestedWithStyles as IsoNestedWithStylesHooked} from './data/hooks/isomorphic/iso-nested-with-styles';
+import IsoSimpleHooked from './data/hooks/isomorphic/iso-simple';
+import IsoNestedHooked from './data/hooks/isomorphic/iso-nested';
+import IsoNestedWithStylesHooked from './data/hooks/isomorphic/iso-nested-with-styles';
+
+import IsoSimpleNoContext from './data/no-context/isomorphic/iso-simple';
+import IsoNestedNoContext from './data/no-context/isomorphic/iso-nested';
+import IsoNestedWithStylesNoContext from './data/no-context/isomorphic/iso-nested-with-styles';
 
 import * as fetchBaseValue from './data/streams/fetch-base-value';
 import * as fetchV from './data/streams/fetch-v';
@@ -36,7 +40,13 @@ describe('renderToHtml(isomorphicComponent)', () => {
             IsoSimple: IsoSimpleHooked,
             IsoNested: IsoNestedHooked,
             IsoNestedWithStyles: IsoNestedWithStylesHooked,
-        }
+        },
+        {
+            name: 'No context',
+            IsoSimple: IsoSimpleNoContext,
+            IsoNested: IsoNestedNoContext,
+            IsoNestedWithStyles: IsoNestedWithStylesNoContext,
+        },
     ].forEach(({
         name,
         IsoSimple,
