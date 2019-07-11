@@ -1,33 +1,24 @@
 {
-  "name": "@isoreact/bacon1",
-  "version": "1.4.0",
-  "description": "A library for making isomorphic React components with Bacon.js 1",
+  "name": "@isoreact/bacon",
+  "version": "1.4.0-babel6",
+  "description": "A library for making isomorphic React components with Bacon.js",
   "author": "Steve Taylor",
   "license": "MIT",
-  "repository": "isoreact/bacon1",
-  "main": "dist/index.js",
-  "files": [
-    "dist/"
-  ],
+  "repository": "isoreact/bacon",
+  "main": "src/index.js",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "start": "rimraf dist && rollup -c -w",
     "ci-cd": "echo 'CI-CD' && npm-run-all --silent clean --parallel ci-cd-*",
-    "ci-cd-audit": "npm audit",
+    "ci-cd-audit": "npm audit --audit-level=moderate",
     "ci-cd-lint": "npm-run-all --silent lint",
     "ci-cd-test": "npm run test",
-    "ci-cd-build": "npm run build",
     "clean": "echo 'CLEAN' && npm-run-all --silent --parallel clean-*",
     "clean-coverage": "rimraf coverage",
-    "clean-dist": "rimraf dist",
     "lint": "eslint src/**/*.js",
     "test": "echo 'TEST' && cross-env NODE_ENV=test npm-run-all --silent test-*",
-    "test-run": "cross-env NODE_ENV=development jest",
-    "build": "echo 'BUILD' && npm-run-all --silent build-*",
-    "build-rollup": "rollup -c",
-    "build-dist": "cp index.js dist"
+    "test-run": "cross-env NODE_ENV=development jest"
   },
   "jest": {
     "collectCoverage": true,
@@ -42,6 +33,27 @@
     ],
     "snapshotSerializers": [
       "./test/serializers/render-to-html-serializer"
+    ],
+    "transform": {
+      "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
+    }
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "env",
+            "react"
+          ],
+          "plugins": [
+            "transform-runtime",
+            "proposal-class-properties"
+          ]
+        }
+      ],
+      "envify"
     ]
   },
   "peerDependencies": {
@@ -52,20 +64,23 @@
     "styled-components": ">=3.3.3"
   },
   "dependencies": {
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-runtime": "^6.26.0",
     "hash.js": "^1.1.5",
     "regenerator-runtime": "^0.13.1",
     "serialize-javascript": "^1.6.1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.3.3",
-    "@babel/plugin-proposal-class-properties": "^7.3.3",
     "@babel/plugin-proposal-object-rest-spread": "^7.3.2",
-    "@babel/preset-env": "^7.3.1",
-    "@babel/preset-react": "^7.0.0",
-    "babel-jest": "^24.1.0",
+    "babel-jest": "^23.6.0",
     "babel-plugin-styled-components": "^1.10.0",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "babelify": "^8.0.0",
     "baconjs": "^1.0.1",
     "cross-env": "^5.2.0",
     "eslint": "^5.16.0",
@@ -77,13 +92,6 @@
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
     "rimraf": "^2.6.3",
-    "rollup": "^1.1.2",
-    "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-resolve": "^4.0.0",
-    "rollup-plugin-replace": "^2.1.0",
-    "rollup-plugin-sourcemaps": "^0.4.2",
-    "rollup-plugin-terser": "^4.0.4",
     "styled-components": "^4.1.3"
   }
 }

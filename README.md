@@ -1,7 +1,9 @@
-# IsoReact &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/isoreact/bacon1/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/@isoreact/bacon1.svg?style=flat)](https://www.npmjs.com/package/@isoreact/bacon1) ![npm](https://img.shields.io/npm/dw/@isoreact/bacon1.svg) [![Build Status](https://travis-ci.org/isoreact/bacon1.svg?branch=develop)](https://travis-ci.org/isoreact/bacon1) [![PRs Welcome](https://img.shields.io/badge/pull_requests-welcome-brightgreen.svg)](https://github.com/isoreact/bacon1/blob/master/CONTRIBUTING.md)
+# IsoReact &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/isoreact/bacon/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/@isoreact/bacon.svg?style=flat)](https://www.npmjs.com/package/@isoreact/bacon) ![npm](https://img.shields.io/npm/dw/@isoreact/bacon.svg) [![Build Status](https://travis-ci.org/isoreact/bacon.svg?branch=develop)](https://travis-ci.org/isoreact/bacon) [![PRs Welcome](https://img.shields.io/badge/pull_requests-welcome-brightgreen.svg)](https://github.com/isoreact/bacon/blob/master/CONTRIBUTING.md)
+
+**NOTE: This is a Babel 6 compatible branch.**
 
 IsoReact is a collection of libraries to build isomorphic React components. Each edition of IsoReact focuses on a
-specific state management library. IsoReact-Bacon1 is the Bacon.js 1 edition of IsoReact.
+specific state management library. IsoReact-Bacon is the Bacon.js 1 edition of IsoReact.
 
 Features:
 
@@ -17,12 +19,12 @@ isomorphism and should otherwise stay out of your way.
 ## Installation
 
 ```
-npm i -S @isoreact/bacon1
+npm i -S @isoreact/bacon
 ```
 
 ## Examples
 
-See [isoreact/example](https://github.com/isoreact/bacon1-example)
+See [isoreact/example](https://github.com/isoreact/bacon-example)
 
 ## Usage
 
@@ -40,7 +42,7 @@ Create your React component hierarchy, connecting your context to it using `<Con
 ```jsx harmony
 // profile.js
 import React from 'react';
-import {Connect} from '@isoreact/bacon1';
+import {Connect} from '@isoreact/bacon';
 import profileContext from './profile-context';
 
 const ProfileName = () => (
@@ -98,7 +100,7 @@ Define your component's event stream and make it isomorphic:
 // iso-profile.js
 import PropTypes from 'prop-types';
 import Bacon from 'baconjs';
-import {isomorphic} from '@isoreact/bacon1';
+import {isomorphic} from '@isoreact/bacon';
 import Profile from './profile';
 import profileContext from './profile-context';
 import fetchName from './streams/fetch-name';
@@ -166,7 +168,7 @@ Somewhere on the server:
 
 ```jsx harmony
 import React from 'react';
-import {renderToHtml} from '@isoreact/bacon1';
+import {renderToHtml} from '@isoreact/bacon';
 import {IsoProfile} from './iso-profile';
 
 // Server-side render an HTML page consisting of the profiles from a list of user IDs.
@@ -206,7 +208,7 @@ bearing in mind that `onData` is called in render order, which is defined by `Re
 Somewhere on the client:
 
 ```js
-import {hydrate} from '@isoreact/bacon1';
+import {hydrate} from '@isoreact/bacon';
 import IsoProfile from './iso-profile';
 
 // Hydrate all instances of iso-profile on the page
@@ -257,7 +259,7 @@ export default function Profile({isLoading, name, photo}) {
 ```jsx harmony
 import PropTypes from 'prop-types';
 import Bacon from 'baconjs';
-import {isomorphic} from '@isoreact/bacon1';
+import {isomorphic} from '@isoreact/bacon';
 import Profile from './profile';
 import fetchName from './streams/fetch-name';
 import fetchPhoto from './streams/fetch-photo';
@@ -339,7 +341,7 @@ A custom hook is provided as an alternative to `<Connect />`.
 ```jsx harmony
 // profile.js
 import React from 'react';
-import {useIsomorphicContext} from '@isoreact/bacon1';
+import {useIsomorphicContext} from '@isoreact/bacon';
 import profileContext from './profile-context';
 
 export default function Profile() {
@@ -381,7 +383,7 @@ The server-side rendering portion of the above example can be updated as follows
 
 ```jsx harmony
 import React from 'react';
-import {renderToHtml, StyledComponentsServerRenderer} from '@isoreact/bacon1';
+import {renderToHtml, StyledComponentsServerRenderer} from '@isoreact/bacon';
 import {IsoProfile} from './iso-profile';
 
 // Server-side render an HTML page consisting of the profiles from a list of user IDs.
