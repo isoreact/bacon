@@ -1,6 +1,6 @@
 {
   "name": "@isoreact/bacon",
-  "version": "1.4.1-babel6",
+  "version": "1.4.2-babel6",
   "description": "A library for making isomorphic React components with Bacon.js",
   "author": "Steve Taylor",
   "license": "MIT",
@@ -49,8 +49,16 @@
           ],
           "plugins": [
             "transform-runtime",
-            "transform-class-properties"
-          ]
+            "transform-class-properties",
+            "transform-object-rest-spread"
+          ],
+          "env": {
+            "production": {
+              "plugins": [
+                "transform-react-remove-prop-types"
+              ]
+            }
+          }
         }
       ],
       "envify"
@@ -66,6 +74,7 @@
   "dependencies": {
     "babel-core": "^6.26.3",
     "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
@@ -76,7 +85,6 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-object-rest-spread": "^7.3.2",
     "babel-jest": "^23.6.0",
     "babel-plugin-styled-components": "^1.10.0",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
