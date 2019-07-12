@@ -1,5 +1,7 @@
 # IsoReact &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/isoreact/bacon/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/@isoreact/bacon.svg?style=flat)](https://www.npmjs.com/package/@isoreact/bacon) ![npm](https://img.shields.io/npm/dw/@isoreact/bacon.svg) [![Build Status](https://travis-ci.org/isoreact/bacon.svg?branch=develop)](https://travis-ci.org/isoreact/bacon) [![PRs Welcome](https://img.shields.io/badge/pull_requests-welcome-brightgreen.svg)](https://github.com/isoreact/bacon/blob/master/CONTRIBUTING.md)
 
+**NOTE: This is a Babel 6 compatible branch.**
+
 IsoReact is a collection of libraries to build isomorphic React components. Each edition of IsoReact focuses on a
 specific state management library. IsoReact-Bacon is the Bacon.js edition of IsoReact, supporting all versions of
 Bacon.js from 0.7.59 onwards.
@@ -19,11 +21,6 @@ npm i -S @isoreact/bacon
 ```
 
 ## Import and build
-
-Two modules are available for importing:
-
-* `@isoreact/bacon` - this library's source (recommended)
-* `@isoreact/bacon/dist` - prebuilt library using `@babel/preset-env` and default browserslist targets
 
 A `.babelrc` file is provided to support Babel traversing this library in `node_modules`. If you're using Browserify,
 package.json contains a `"browserify"` field to instruct Browserify to use `babelify` and `envify`. This library
