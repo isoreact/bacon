@@ -20,3 +20,9 @@ export function noImmediateStateOnRenderError(name) {
         + ' error, ensure getData(props$, hydration, immediate) returns a Bacon.js Property which produces an event immediately.'
     );
 }
+
+export function noContext() {
+    return (
+        'Cannot use Connect or useIsomorphicContext outside the scope of the isomorphic component to which the specified context belongs.'
+    );
+}

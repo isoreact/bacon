@@ -62,7 +62,7 @@ export default function isomorphic({
         Component.displayName = C.displayName || C.name;
     }
 
-    class Isomorphic extends React.Component { // eslint-disable-line react/no-unsafe
+    class Isomorphic extends React.Component {
         static propTypes = {
             innerRef: propTypes.oneOfType([propTypes.object, propTypes.func]),
         };
@@ -92,8 +92,8 @@ export default function isomorphic({
 
             return (
                 <IsomorphicContext.Consumer>
-                    {(phase) => {
-                        switch (phase) {
+                    {(getPhase) => {
+                        switch (getPhase()) {
                             case SERVER: // Server-side rendering
                                 return (
                                     <ServerContext.Consumer>
@@ -145,7 +145,7 @@ export default function isomorphic({
 
                                                         // When the stream resolves later, continue walking the tree.
                                                         ReactDOMServer.renderToStaticMarkup(
-                                                            <IsomorphicContext.Provider value={SERVER}>
+                                                            <IsomorphicContext.Provider value={() => SERVER}>
                                                                 <ServerContext.Provider value={{getStream, registerStream}}>
                                                                     <Context.Provider
                                                                         value={{
@@ -188,6 +188,8 @@ export default function isomorphic({
 
                             case HYDRATION: // Hydrating or continuing to render after hydration
                                 if (!this.isHydrated) {
+                                    this.isHydrated = true;
+
                                     return (
                                         <HydrationContext.Consumer>
                                             {(getHydration) => {

@@ -4,7 +4,7 @@ export const ServerContext = React.createContext(null); // (getStream, registerS
 
 export const HydrationContext = React.createContext(null); // (name, props) => ({hydration, elementId})
 
-export const IsomorphicContext = React.createContext(null); // {server: {getStream, registerStream?, onError?}, hydration: {hydration, elementId}}
+export const IsomorphicContext = React.createContext(() => null); // () => HYDRATION|SERVER|null
 
 export const HYDRATION = Symbol('hydration');
 export const SERVER = Symbol('ssr');

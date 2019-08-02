@@ -1,12 +1,12 @@
-import {useContext, useLayoutEffect, useRef, useState} from 'react';
+import {useContext, useRef, useState} from 'react';
 
 import {IsomorphicContext, HYDRATION, SERVER} from './context';
-import {noImmediateStateOnHydrationError, noImmediateStateOnRenderError, noImmediateStateOnServerError} from './errors';
+import {noContext, noImmediateStateOnHydrationError, noImmediateStateOnRenderError, noImmediateStateOnServerError} from './errors';
 
 export default function useIsomorphicContext(context, isEqual) {
-    const isomorphicContext = useContext(IsomorphicContext);
+    const phase = useContext(IsomorphicContext)();
 
-    if (isomorphicContext === SERVER) {
+    if (phase === SERVER) {
         const {data$, name} = useContext(context);
         const [state] = useState(() => {
             let immediateState = null;
@@ -29,16 +29,25 @@ export default function useIsomorphicContext(context, isEqual) {
 
         return state;
     } else {
-        const {data$, name, elementId} = useContext(context);
+        const {data$, name, elementId} = (useContext(context) || {});
         const subscription = useRef(null);
 
         let immediateState = null;
 
+        // On the first event (which should be immediate), set the immediate value.
         const observer = useRef((value) => {
             immediateState = value;
         });
 
         const [state, setState] = useState(() => {
+            // If we're not in the context's scope, log an error and move on.
+            if (!data$) {
+                console.error(noContext());
+
+                // Default to {} so errors aren't thrown when destructuring the result of useIsomorphicContext(context)
+                return {};
+            }
+
             subscription.current = (
                 isEqual
                     ? data$.skipDuplicates(isEqual)
@@ -49,32 +58,27 @@ export default function useIsomorphicContext(context, isEqual) {
                 });
 
             if (!immediateState) {
-                subscription.current();
-                subscription.current = null;
-
                 if (process.env.NODE_ENV === 'development') {
-                    if (isomorphicContext === HYDRATION) {
-                        console.warn(noImmediateStateOnHydrationError(name, elementId));
+                    if (phase === HYDRATION) {
+                        // This is more severe on hydration than pure client-side rendering, because it will cause a hydration mismatch. The
+                        // hydration object provided to getData should have sufficient data to product the first event immediately.
+                        console.error(noImmediateStateOnHydrationError(name, elementId));
                     } else {
+                        // This is less sever on pure client-side rendering than when hydrating. Nevertheless, it's a bad idea to render a
+                        // component without props - even as an implicit loading state - when it expects props.
                         console.warn(noImmediateStateOnRenderError(name));
                     }
                 }
             }
 
-            return immediateState;
-        });
-
-        useLayoutEffect(() => {
+            // On subsequent events (or the initial event if it wasn't produced immediately), update the state.
             observer.current = (value) => {
                 setState(value);
             };
 
-            return () => {
-                if (subscription.current) {
-                    subscription.current();
-                }
-            };
-        }, []);
+            // In case there is no immediate state, default to {} so errors aren't thrown when destructuring the result of useIsomorphicContext(context)
+            return immediateState || {};
+        });
 
         return state;
     }
