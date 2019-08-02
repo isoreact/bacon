@@ -196,7 +196,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
             describe('observable does not immediately produce an event', () => {
                 let originalConsoleWarn;
                 let originalConsoleError;
-                let consoleWarnSpy;
+                let consoleErrorSpy;
                 const html = `<div id="0123456789abcdef"></div><script type="text/javascript">Object.assign(["__ISO_DATA__","iso-simple${suffix}","0123456789abcdef"].reduce(function(a,b){return a[b]=a[b]||{};},window),{"props":{"power":4},"hydration":{}});</script>`;
 
                 beforeEach(() => {
@@ -204,7 +204,7 @@ describe('hydrate(isomorphicComponent, options)', () => {
                     console.warn = () => {};
                     originalConsoleError = console.error;
                     console.error = () => {};
-                    consoleWarnSpy = jest.spyOn(console, 'warn');
+                    consoleErrorSpy = jest.spyOn(console, 'error');
                     document.body.innerHTML = html;
                     eval(document.querySelector('script').innerHTML);
                     hydrate(IsoSimple);
@@ -214,13 +214,13 @@ describe('hydrate(isomorphicComponent, options)', () => {
                     ReactDOM.unmountComponentAtNode(document.getElementById('0123456789abcdef'));
                     delete window.__ISO_DATA__;
                     document.body.innerHTML = '';
-                    consoleWarnSpy.mockRestore();
+                    consoleErrorSpy.mockRestore();
                     console.warn = originalConsoleWarn;
                     console.error = originalConsoleError;
                 });
 
                 test('it complains that subscribers have to wait for the observable before rendering', () => {
-                    expect(consoleWarnSpy.mock.calls.slice(-1)[0][0]).toBe(
+                    expect(consoleErrorSpy.mock.calls.slice(-1)[0][0]).toBe(
                         `Cannot hydrate isomorphic component "iso-simple${suffix}" at DOM node "#0123456789abcdef" because the Observable returned by its getData(props$, hydration, immediate) function does not produce an event immediately upon subscription. To avoid this error, ensure getData(props$, hydration, immediate) returns a Bacon.js Property which produces an event immediately when the hydration object is provided.`
                     );
                 });
