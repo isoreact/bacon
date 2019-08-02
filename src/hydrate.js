@@ -108,19 +108,31 @@ function hydrateElement(
     }
 
     if (hydration) {
+        let isHydrating = true;
+
         // If we have initial data, hydrate the server-rendered component
-        ReactDOM.hydrate((
-            <IsomorphicContext.Provider value={HYDRATION}>
-                <HydrationContext.Provider
-                    value={(name, props) => ({
-                        hydration: hydration[keyFor(name, props)],
-                        elementId: element.id,
-                    })}
-                >
-                    <IsomorphicComponent {...props} />
-                </HydrationContext.Provider>
-            </IsomorphicContext.Provider>
-        ), element);
+        ReactDOM.hydrate(
+            (
+                <IsomorphicContext.Provider value={() => isHydrating ? HYDRATION : null}>
+                    <HydrationContext.Provider
+                        value={(name, props) => (
+                            isHydrating
+                                ? ({
+                                    hydration: hydration[keyFor(name, props)],
+                                    elementId: element.id,
+                                })
+                                : {}
+                        )}
+                    >
+                        <IsomorphicComponent {...props} />
+                    </HydrationContext.Provider>
+                </IsomorphicContext.Provider>
+            ),
+            element,
+            () => {
+                isHydrating = false;
+            }
+        );
     } else {
         // If we don't have initial data, render over the top of anything currently in the element.
         ReactDOM.render((

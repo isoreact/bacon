@@ -52,7 +52,7 @@ export default async function renderToHtml(
 
     // Start walking the element tree.
     ReactDOMServer.renderToStaticMarkup((
-        <IsomorphicContext.Provider value={SERVER}>
+        <IsomorphicContext.Provider value={() => SERVER}>
             <ServerContext.Provider value={{getStream, registerStream, onError}}>
                 {isomorphicElement}
             </ServerContext.Provider>
@@ -93,7 +93,7 @@ export default async function renderToHtml(
 
     // Now that everything is resolved, synchronously render the html.
     const html = render((
-        <IsomorphicContext.Provider value={SERVER}>
+        <IsomorphicContext.Provider value={() => SERVER}>
             <ServerContext.Provider value={{getStream, onData}}>
                 {isomorphicElement}
             </ServerContext.Provider>
