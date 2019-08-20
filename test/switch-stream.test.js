@@ -48,7 +48,7 @@ describe('Isomorphic component props change', () => {
                 ReactDOM.render(<Component />, mountElement);
             });
 
-            it('updates UI', () => {
+            test('it updates UI', () => {
                 expect(mountElement.querySelector('section').innerHTML).toBe('25');
             });
         });

@@ -52,7 +52,7 @@ describe('Forward refs to underlying component', () => {
                 ReactDOM.render(<Component />, mountElement);
             });
 
-            it('changes the root element\'s className', () => {
+            test('it changes the root element\'s className', () => {
                 expect(mountElement.querySelector('section').className).toBe('ref woz ere');
             });
         });

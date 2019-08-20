@@ -186,7 +186,7 @@ export default function isomorphic({
                                     </ServerContext.Consumer>
                                 );
 
-                            case HYDRATION: // Hydrating or continuing to render after hydration
+                            case HYDRATION: // Hydrating
                                 if (!this.isHydrated) {
                                     this.isHydrated = true;
 
@@ -233,14 +233,22 @@ export default function isomorphic({
                                 }
 
                                 return (
-                                    <Context.Provider
-                                        value={{
-                                            data$: this.data$,
-                                            name,
-                                        }}
-                                    >
-                                        <Component ref={innerRef} />
-                                    </Context.Provider>
+                                    // If this component was hydrated (and now we're performing a post-hydration render),
+                                    // HydrationContext.Consumer was rendered in this position, so it needs to continue being rendered
+                                    // on post-hydration renders to prevent Component being unmounted and recreated. This only happens when
+                                    // this component's ref changes (see shouldComponentUpdate).
+                                    <HydrationContext.Consumer>
+                                        {() => (
+                                            <Context.Provider
+                                                value={{
+                                                    data$: this.data$,
+                                                    name,
+                                                }}
+                                            >
+                                                <Component ref={innerRef} />
+                                            </Context.Provider>
+                                        )}
+                                    </HydrationContext.Consumer>
                                 );
                             }
                         }
