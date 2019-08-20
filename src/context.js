@@ -8,3 +8,7 @@ export const IsomorphicContext = React.createContext(() => null); // () => HYDRA
 
 export const HYDRATION = Symbol('hydration');
 export const SERVER = Symbol('ssr');
+
+ServerContext.displayName = 'ServerContext';
+HydrationContext.displayName = 'HydrationContext';
+IsomorphicContext.displayName = 'IsomorphicContext';

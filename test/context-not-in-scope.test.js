@@ -36,7 +36,7 @@ describe('Context not in scope', () => {
         document.body.innerHTML = '';
     });
 
-    it('throws an error', () => {
+    test('it throws an error', () => {
         expect(consoleErrorSpy.mock.calls.slice(-1)[0][0]).toBe(
             'Cannot use Connect or useIsomorphicContext outside the scope of the isomorphic component to which the specified context belongs.'
         );

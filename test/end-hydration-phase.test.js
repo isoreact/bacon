@@ -96,11 +96,11 @@ describe('End hydration phase', () => {
         document.body.innerHTML = '';
     });
 
-    it('does not try to hydrate the child after hydration has occurred', async () => {
+    test('it does not try to hydrate the child after hydration has occurred', async () => {
         expect(document.querySelector('#error')).toBe(null);
     });
 
-    it('does not render the child in the context of the hydration render phase', () => {
+    test('it does not render the child in the context of the hydration render phase', () => {
         expect(document.querySelector('#phase').innerHTML).toBe('client');
     });
 });
