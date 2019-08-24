@@ -1,4 +1,4 @@
-import {useContext, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 
 import {IsomorphicContext, HYDRATION, SERVER} from './context';
 import {noContext, noImmediateStateOnHydrationError, noImmediateStateOnRenderError, noImmediateStateOnServerError} from './errors';
@@ -79,6 +79,13 @@ export default function useIsomorphicContext(context, isEqual) {
             // In case there is no immediate state, default to {} so errors aren't thrown when destructuring the result of useIsomorphicContext(context)
             return immediateState || {};
         });
+
+        // Unsubscribe
+        useEffect(() => () => {
+            if (subscription.current) {
+                subscription.current();
+            }
+        }, []);
 
         return state;
     }
